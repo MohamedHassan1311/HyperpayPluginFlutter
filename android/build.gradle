@@ -1,0 +1,49 @@
+group 'com.excprotection.payment'
+version '1.0'
+/Users/mhamedelbaz/Downloads/hyperpay_sdk-main/LICENSE
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.1.3'
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        flatDir {
+            dirs project(':hyperpay_plugin').file('libs')
+        }
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    namespace "com.excprotection.payment"
+    compileSdkVersion 32
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        minSdkVersion 21
+    }
+}
+
+dependencies {
+    implementation(name: "oppwa.mobile-release", ext: 'aar')
+    debugImplementation(name: "ipworks3ds_sdk", ext: 'aar')
+    releaseImplementation(name: "ipworks3ds_sdk_deploy", ext: 'aar')
+    implementation "com.google.android.material:material:1.7.0"
+    implementation "androidx.appcompat:appcompat:1.5.1"
+    implementation 'com.google.android.gms:play-services-wallet:19.1.0'
+    implementation "androidx.browser:browser:1.4.0"
+}
