@@ -6,19 +6,22 @@ The HyperPay platform offers a complete, easy-to-use guide to enable seamless in
 [![GitHub](https://img.shields.io/badge/Github-Link-blue?logo=github)](https://github.com/MohamedHassan1311)
 [![License](https://img.shields.io/badge/license-MIT-purple.svg)](https://pub.dev/packages/hyperpay_plugin/license)
 
-## Install Plugin 
-```
-    hyperpay_plugin:
-    git:
-      url: https://github.com/MohamedHassan1311/HyperpayPluginFlutter.git
-      ref: main
-```
+
 
 ## Support ReadyUI , CustomUI
 - **VISA** **,** **MasterCard**
 - **STC**
 - **Apple Pay**
 - **MADA** *( Saudi Arabia )*
+
+
+## Install Plugin  Add to  pubspec.yaml
+```
+    hyperpay_plugin:
+    git:
+      url: https://github.com/MohamedHassan1311/HyperpayPluginFlutter.git
+      ref: main
+```
 
 ### Android Setup
 
