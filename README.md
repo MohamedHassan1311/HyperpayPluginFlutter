@@ -2,7 +2,7 @@
 
 The HyperPay platform offers a complete, easy-to-use guide to enable seamless integration of our end-to-end payment gateway for mobile and desktop browsers. Through a unified API, you can enable and gain access to all platform features. Choose one of the options below to quickly get started
 
-[![pub package](https://img.shields.io/badge/Release-1.0.0%20Pub%20dev-blue)]((https://github.com/MohamedHassan1311))
+[![pub package](https://img.shields.io/badge/Release-1.0.0%20Pub%20dev-blue)](https://github.com/MohamedHassan1311)
 [![GitHub](https://img.shields.io/badge/Github-Link-blue?logo=github)](https://github.com/MohamedHassan1311)
 [![License](https://img.shields.io/badge/license-MIT-purple.svg)](https://pub.dev/packages/hyperpay_plugin/license)
 
