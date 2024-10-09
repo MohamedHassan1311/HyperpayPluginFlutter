@@ -32,7 +32,7 @@ class FlutterHyperPay {
   /// The function waits for the payment operation to complete and returns the resulting PaymentResultData.
   Future<PaymentResultData> readyUICards({required ReadyUI readyUI}) async {
     return await implementPayment(
-      brands: readyUI.brandsName,
+      brands: readyUI.brandsName!,
       checkoutId: readyUI.checkoutId,
       shopperResultUrl: shopperResultUrl,
       channelName: channelName,
@@ -77,6 +77,26 @@ class FlutterHyperPay {
       paymentMode: paymentMode,
       lang: lang,
       phoneNumber: customUISTC.phoneNumber,
+    );
+  }
+
+  /// This function is used to do payment using custom UI. It takes "CustomUI" as an argument,
+  /// which consists of the brand name, checkout id, card number, holder name, month, year and cvv.
+  /// The function returns a Future of PaymentResultData.
+  Future<PaymentResultData> payWithApplePAY({required ReadyUI readyUI}) async {
+    return await implementPayment(
+      brands: ["APPLEPAY",],
+      checkoutId: readyUI.checkoutId,
+
+      shopperResultUrl: shopperResultUrl,
+      channelName: channelName,
+      paymentMode: paymentMode,
+      merchantId: readyUI.merchantIdApplePayIOS,
+      countryCode: readyUI.countryCodeApplePayIOS,
+      companyName: readyUI.companyNameApplePayIOS,
+      lang: lang,
+      themColorHexIOS: readyUI.themColorHexIOS,
+      setStorePaymentDetailsMode: readyUI.setStorePaymentDetailsMode,
     );
   }
 

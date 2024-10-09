@@ -13,7 +13,7 @@ class ReadyUI {
   bool setStorePaymentDetailsMode;
 
   ///  brandName variable could be used to store the name of the brand or company
-  List<String> brandsName;
+  List<String> ?brandsName;
 
   /// merchantId is a unique identifier associated with your Apple Developer account and is used to enable Apple Pay in your iOS app.
   String merchantIdApplePayIOS;
@@ -29,7 +29,7 @@ class ReadyUI {
 
   ReadyUI({
     required this.checkoutId,
-    required this.brandsName,
+     this.brandsName,
     this.merchantIdApplePayIOS = "",
     this.countryCodeApplePayIOS = "",
     this.companyNameApplePayIOS = "",
