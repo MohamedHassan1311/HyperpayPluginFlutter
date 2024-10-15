@@ -1,6 +1,6 @@
 group 'com.excprotection.payment'
 version '1.0'
-/Users/mhamedelbaz/Downloads/hyperpay_sdk-main/LICENSE
+
 buildscript {
     repositories {
         google()
