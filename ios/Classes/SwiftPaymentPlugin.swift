@@ -286,26 +286,13 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
     }
 
     @objc func didReceiveAsynchronousPaymentCallback(result: @escaping FlutterResult) {
-        // Remove the notification observer
+        // Remove notification observer
         NotificationCenter.default.removeObserver(self, name: Notification.Name(rawValue: "AsyncPaymentCompletedNotificationKey"), object: nil)
 
-        // Handle dismissal for different payment types
-        if self.type == "ReadyUI" || self.type == "APPLEPAY" || self.type == "StoredCards" {
-            // Dismiss ReadyUI, Apple Pay, or Stored Cards checkout view
-            self.checkoutProvider?.dismissCheckout(animated: true) {
-                // Dismiss any presented view controller as a fallback
-                self.dismissAllPresentedViews {
-                    DispatchQueue.main.async {
-                        result("success")
-                    }
-                }
-            }
-        } else {
-            // Dismiss Safari view controller for other payment types
-            self.safariVC?.dismiss(animated: true) {
-                DispatchQueue.main.async {
-                    result("success")
-                }
+        // Dismiss all views, regardless of the payment type
+        self.dismissAllPresentedViews {
+            DispatchQueue.main.async {
+                result("success")
             }
         }
     }
@@ -345,27 +332,41 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
            }
 
        }
-       func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {
-           controller.dismiss(animated: true, completion: nil)
-       }
-       func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController, didAuthorizePayment payment: PKPayment, completion: @escaping (PKPaymentAuthorizationStatus) -> Void) {
-           if let params = try? OPPApplePayPaymentParams(checkoutID: self.checkoutid, tokenData: payment.token.paymentData) as OPPApplePayPaymentParams? {
-               self.transaction  = OPPTransaction(paymentParams: params)
-               self.provider.submitTransaction(OPPTransaction(paymentParams: params), completionHandler: {
-                   (transaction, error) in
-                   if (error != nil) {
-                       // see code attribute (OPPErrorCode) and NSLocalizedDescription to identify the reason of failure.
-                       self.createalart(titletext: "APPLEPAY Error", msgtext: "")
-                   }
-                   else {
-                       // send request to your server to obtain transaction status.
-                       completion(.success)
-                       self.Presult!("success")
-                   }
-               })
-           }
+    func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {
+        // Dismiss the Apple Pay authorization controller
+        controller.dismiss(animated: true) {
+            // Close all other views once Apple Pay is finished
+            self.dismissAllPresentedViews {
+                // Notify Flutter about the cancellation
+                self.Presult?("canceled")
+            }
+        }
+    }
+    func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController, didAuthorizePayment payment: PKPayment, completion: @escaping (PKPaymentAuthorizationStatus) -> Void) {
+        // Create Apple Pay payment params
+        if let params = try? OPPApplePayPaymentParams(checkoutID: self.checkoutid, tokenData: payment.token.paymentData) as OPPApplePayPaymentParams? {
+            self.transaction = OPPTransaction(paymentParams: params)
+            self.provider.submitTransaction(self.transaction!, completionHandler: { [weak self] (transaction, error) in
+                guard let self = self else { return }
+                if let error = error {
+                    // Handle error
+                    self.createalart(titletext: "Apple Pay Error", msgtext: error.localizedDescription)
+                    completion(.failure)
+                } else {
+                    // Transaction was successful
+                    completion(.success)
+                    // Notify Flutter and close all views
+                    self.Presult?("success")
+                    self.dismissAllPresentedViews {}
+                }
+            })
+        } else {
+            // Handle failure to create payment params
+            completion(.failure)
+            self.createalart(titletext: "Payment Error", msgtext: "Failed to create payment parameters")
+        }
+    }
 
-       }
        func decimal(with string: String) -> NSDecimalNumber {
            //  let formatter = NumberFormatter()
            let formatter = NumberFormatter()
