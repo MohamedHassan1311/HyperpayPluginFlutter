@@ -61,21 +61,11 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
              if self.type == "ReadyUI" {
 
 
-//                 if self.brandsReadyUi.count == 1 && self.brandsReadyUi.contains("APPLEPAY") {
-//                     print(self.brandsReadyUi.count)
-//                     NSLog("Apple Pay not supported.");
-//
-//                     self.brands = (args!["brand"] as? String)!
-//                     self.number = (args!["card_number"] as? String)!
-//                     self.holder = (args!["holder_name"] as? String)!
-//                     self.year = (args!["year"] as? String)!
-//                     self.month = (args!["month"] as? String)!
-//                     self.cvv = (args!["cvv"] as? String)!
-//                     DispatchQueue.main.async {
-//                         self.onApplePay(checkoutId: self.checkoutid, result1: result)
-//                     }
-//
-//                }
+                 if self.brandsReadyUi.contains("APPLEPAY") {
+                     print(self.brandsReadyUi.count)
+                     self.onApplePay()
+
+                }
 
                 self.applePaybundel=(args!["merchantId"] as? String)!
                 self.countryCode=(args!["CountryCode"] as? String)!
@@ -180,27 +170,27 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
 
      }
 
-    private func onApplePay(checkoutId: String,result1: @escaping FlutterResult){
+   private func onApplePay() {
 
 
         let paymentRequest = OPPPaymentProvider.paymentRequest(
             withMerchantIdentifier: self.applePaybundel,
-            countryCode: self.countryCode)
+            countryCode: self.countryCode))
 
         paymentRequest.currencyCode = self.currencyCode
 
         paymentRequest.paymentSummaryItems = [
-            PKPaymentSummaryItem(label: self.companyName,
+            PKPaymentSummaryItem(label:self.companyName,
                                  amount: NSDecimalNumber(value: self.amount))
         ]
 
         if OPPPaymentProvider.canSubmitPaymentRequest(paymentRequest) {
-//            if let vc = PKPaymentAuthorizationViewController(paymentRequest: paymentRequest) as PKPaymentAuthorizationViewController? {
-//                vc.delegate = self
-//                UIApplication.shared.windows.first?.rootViewController?.present(vc, animated: true, completion: nil)
-//            } else {
-//                NSLog("Apple Pay not supported.");
-//            }
+            if let vc = PKPaymentAuthorizationViewController(paymentRequest: paymentRequest) as PKPaymentAuthorizationViewController? {
+                vc.delegate = self
+                UIApplication.shared.windows.first?.rootViewController?.present(vc, animated: true, completion: nil)
+            } else {
+                NSLog("Apple Pay not supported.");
+            }
         }
     }
 
@@ -277,28 +267,25 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
             }
     }
 
-     @objc func didReceiveAsynchronousPaymentCallback(result: @escaping FlutterResult) {
-         NotificationCenter.default.removeObserver(self, name: Notification.Name(rawValue: "AsyncPaymentCompletedNotificationKey"), object: nil)
+       @objc func didReceiveAsynchronousPaymentCallback(result: @escaping FlutterResult) {
+           NotificationCenter.default.removeObserver(self, name: Notification.Name(rawValue: "AsyncPaymentCompletedNotificationKey"), object: nil)
+           if self.type == "ReadyUI" || self.type=="APPLEPAY"||self.type=="StoredCards"{
+               self.checkoutProvider?.dismissCheckout(animated: true) {
+                   DispatchQueue.main.async {
+                       result("success")
+                   }
+               }
+           }
 
-         DispatchQueue.main.async {
-             if self.type == "ReadyUI" || self.type == "APPLEPAY" || self.type == "StoredCards" {
-                 self.checkoutProvider?.dismissCheckout(animated: true) {
-                     DispatchQueue.main.async {
-                         result("success")
-                         self.Presult = nil
-                     }
-                 }
-             } else {
-                 self.safariVC?.dismiss(animated: true) {
-                     DispatchQueue.main.async {
-                         result("success")
-                         self.Presult = nil
-                     }
-                 }
-             }
-         }
-     }
+           else {
+               self.safariVC?.dismiss(animated: true) {
+                   DispatchQueue.main.async {
+                       result("success")
+                   }
+               }
+           }
 
+       }
      public func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
            var handler:Bool = false
            if url.scheme?.caseInsensitiveCompare( self.shopperResultURL) == .orderedSame {
