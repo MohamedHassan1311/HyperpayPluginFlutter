@@ -332,15 +332,20 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
            }
 
        }
-    public func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {
-        // Dismiss the Apple Pay authorization controller
-        controller.dismiss(animated: true) {
-            // Notify the result and dismiss the checkout
-            self.checkoutProvider?.dismissCheckout(animated: true, completion: {
+  public func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {
+      // Dismiss the Apple Pay authorization controller
+      controller.dismiss(animated: true) {
+          // Once dismissed, return the result and dismiss the checkout view
+          self.Presult?("success")
+
+          // Close the presentCheckout view or perform any other necessary actions
+          self.checkoutProvider?.dismissCheckout(animated: true, completion: {
                 self.Presult?("success")
-            })
-        }
-    }
+              // Optionally handle any additional actions here after dismissing the checkout view
+          })
+      }
+  }
+
 
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController, didAuthorizePayment payment: PKPayment, completion: @escaping (PKPaymentAuthorizationStatus) -> Void) {
         // Create Apple Pay payment params
