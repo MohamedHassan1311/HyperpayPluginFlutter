@@ -215,15 +215,22 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
 
              if !OPPCardPaymentParams.isNumberValid(self.number, luhnCheck: true) {
                 self.createalart(titletext: "Card Number is Invalid", msgtext: "")
+                 result1("error")
             }
             else  if !OPPCardPaymentParams.isHolderValid(self.holder) {
                 self.createalart(titletext: "Card Holder is Invalid", msgtext: "")
+                                 result1("error")
+
             }
             else   if !OPPCardPaymentParams.isCvvValid(self.cvv) {
                 self.createalart(titletext: "CVV is Invalid", msgtext: "")
+                                 result1("error")
+
             }
             else  if !OPPCardPaymentParams.isExpiryYearValid(self.year) {
                 self.createalart(titletext: "Expiry Year is Invalid", msgtext: "")
+                                 result1("error")
+
             }
             else  if !OPPCardPaymentParams.isExpiryMonthValid(self.month) {
                 self.createalart(titletext: "Expiry Month is Invalid", msgtext: "")
