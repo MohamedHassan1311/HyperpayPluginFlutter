@@ -45,7 +45,6 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
 
   }
 
-
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         self.Presult = result
 
@@ -346,7 +345,13 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
            formatter.minimumFractionDigits = 2
            return formatter.number(from: string) as? NSDecimalNumber ?? 0
        }
+  public func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+        self.Presult!("canceled")
+    }
 
+    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        self.Presult!("canceled")
+    }
     func setThem( checkoutSettings :OPPCheckoutSettings,hexColorString :String){
          // General colors of the checkout UI
          checkoutSettings.theme.confirmationButtonColor = UIColor(hexString:hexColorString);
