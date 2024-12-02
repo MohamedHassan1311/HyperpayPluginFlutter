@@ -187,6 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
     );
 
+    print(paymentResultData.paymentResult.name);
     if (paymentResultData.paymentResult == PaymentResult.success ||
         paymentResultData.paymentResult == PaymentResult.sync) {
       Network.getpaymentstatus(_checkoutid);

@@ -45,7 +45,7 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
 
   }
 
-   
+
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         self.Presult = result
 
@@ -57,15 +57,15 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
             self.shopperResultURL = (args!["ShopperResultUrl"] as? String)!
             self.lang=(args!["lang"] as? String)!
 
-           
-             
+
+
              if self.type == "ReadyUI" {
-                 
-                 
+
+
 //                 if self.brandsReadyUi.count == 1 && self.brandsReadyUi.contains("APPLEPAY") {
 //                     print(self.brandsReadyUi.count)
 //                     NSLog("Apple Pay not supported.");
-//                
+//
 //                     self.brands = (args!["brand"] as? String)!
 //                     self.number = (args!["card_number"] as? String)!
 //                     self.holder = (args!["holder_name"] as? String)!
@@ -75,9 +75,9 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
 //                     DispatchQueue.main.async {
 //                         self.onApplePay(checkoutId: self.checkoutid, result1: result)
 //                     }
-//                 
+//
 //                }
-                 
+
                 self.applePaybundel=(args!["merchantId"] as? String)!
                 self.countryCode=(args!["CountryCode"] as? String)!
                 self.companyName=(args!["companyName"] as? String)!
@@ -121,7 +121,7 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
              let checkoutSettings = OPPCheckoutSettings()
              checkoutSettings.paymentBrands = self.brandsReadyUi;
              if(self.brandsReadyUi.contains("APPLEPAY")){
-                 
+
 //
                      let paymentRequest = OPPPaymentProvider.paymentRequest(withMerchantIdentifier: self.applePaybundel, countryCode: self.countryCode)
                      paymentRequest.paymentSummaryItems = [PKPaymentSummaryItem(label: self.companyName, amount: NSDecimalNumber(value: self.amount))]
@@ -172,7 +172,7 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                  }
              }
                                                     , cancelHandler: {
-                                                    // result1("error")
+                                                     result1("error")
                                                      result1(FlutterError.init(code: "1",message: "Error : operation cancel",details: nil))
                                                         // Executed if the shopper closes the payment page prematurely
                                                         print(self.transaction.debugDescription)
@@ -182,19 +182,19 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
      }
 
     private func onApplePay(checkoutId: String,result1: @escaping FlutterResult){
-    
-        
+
+
         let paymentRequest = OPPPaymentProvider.paymentRequest(
             withMerchantIdentifier: self.applePaybundel,
             countryCode: self.countryCode)
-        
+
         paymentRequest.currencyCode = self.currencyCode
-        
+
         paymentRequest.paymentSummaryItems = [
             PKPaymentSummaryItem(label: self.companyName,
                                  amount: NSDecimalNumber(value: self.amount))
         ]
-        
+
         if OPPPaymentProvider.canSubmitPaymentRequest(paymentRequest) {
 //            if let vc = PKPaymentAuthorizationViewController(paymentRequest: paymentRequest) as PKPaymentAuthorizationViewController? {
 //                vc.delegate = self
