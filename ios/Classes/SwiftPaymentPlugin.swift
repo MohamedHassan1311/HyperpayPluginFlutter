@@ -172,8 +172,12 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
 
    private func onApplePay() {
 
-
-        let paymentRequest = OPPPaymentProvider.paymentRequest(
+       if self.mode == "live" {
+           self.provider = OPPPaymentProvider(mode: OPPProviderMode.live)
+       }else{
+           self.provider = OPPPaymentProvider(mode: OPPProviderMode.test)
+       }
+        let paymentRequest =  self.provider.paymentRequest(
             withMerchantIdentifier: self.applePaybundel,
             countryCode: self.countryCode))
 
@@ -184,7 +188,7 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                                  amount: NSDecimalNumber(value: self.amount))
         ]
 
-        if OPPPaymentProvider.canSubmitPaymentRequest(paymentRequest) {
+        if  self.provider.canSubmitPaymentRequest(paymentRequest) {
             if let vc = PKPaymentAuthorizationViewController(paymentRequest: paymentRequest) as PKPaymentAuthorizationViewController? {
                 vc.delegate = self
                 UIApplication.shared.windows.first?.rootViewController?.present(vc, animated: true, completion: nil)
