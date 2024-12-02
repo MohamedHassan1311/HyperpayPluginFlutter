@@ -277,25 +277,28 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
             }
     }
 
-       @objc func didReceiveAsynchronousPaymentCallback(result: @escaping FlutterResult) {
-           NotificationCenter.default.removeObserver(self, name: Notification.Name(rawValue: "AsyncPaymentCompletedNotificationKey"), object: nil)
-           if self.type == "ReadyUI" || self.type=="APPLEPAY"||self.type=="StoredCards"{
-               self.checkoutProvider?.dismissCheckout(animated: true) {
-                   DispatchQueue.main.async {
-                       result("success")
-                   }
-               }
-           }
+     @objc func didReceiveAsynchronousPaymentCallback(result: @escaping FlutterResult) {
+         NotificationCenter.default.removeObserver(self, name: Notification.Name(rawValue: "AsyncPaymentCompletedNotificationKey"), object: nil)
 
-           else {
-               self.safariVC?.dismiss(animated: true) {
-                   DispatchQueue.main.async {
-                       result("success")
-                   }
-               }
-           }
+         DispatchQueue.main.async {
+             if self.type == "ReadyUI" || self.type == "APPLEPAY" || self.type == "StoredCards" {
+                 self.checkoutProvider?.dismissCheckout(animated: true) {
+                     DispatchQueue.main.async {
+                         result("success")
+                         self.Presult = nil
+                     }
+                 }
+             } else {
+                 self.safariVC?.dismiss(animated: true) {
+                     DispatchQueue.main.async {
+                         result("success")
+                         self.Presult = nil
+                     }
+                 }
+             }
+         }
+     }
 
-       }
      public func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
            var handler:Bool = false
            if url.scheme?.caseInsensitiveCompare( self.shopperResultURL) == .orderedSame {
