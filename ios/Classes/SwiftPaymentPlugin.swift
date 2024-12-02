@@ -61,11 +61,11 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
              if self.type == "ReadyUI" {
 
 
-                 if self.brandsReadyUi.contains("APPLEPAY") {
-                     print(self.brandsReadyUi.count)
-                     self.onApplePay()
-
-                }
+//                 if self.brandsReadyUi.contains("APPLEPAY") {
+//                     print(self.brandsReadyUi.count)
+//                     self.onApplePay()
+//
+//                }
 
                 self.applePaybundel=(args!["merchantId"] as? String)!
                 self.countryCode=(args!["CountryCode"] as? String)!
@@ -170,33 +170,47 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
 
      }
 
-   private func onApplePay() {
+//    private func onApplePay() {
+//        // Set payment provider mode
+//        self.provider = OPPPaymentProvider(mode: self.mode == "live" ? .live : .test)
+//
+//        // Create payment request
+//        guard let paymentRequest = self.provider.paymentRequest(
+//            withMerchantIdentifier: self.applePaybundel,
+//            countryCode: self.countryCode
+//        ) else {
+//            NSLog("Failed to create payment request.")
+//            return
+//        }
+//
+//        // Configure payment request
+//        paymentRequest.currencyCode = self.currencyCode
+//        paymentRequest.paymentSummaryItems = [
+//            PKPaymentSummaryItem(label: self.companyName,
+//                                 amount: NSDecimalNumber(value: self.amount))
+//        ]
+//
+//        // Check if Apple Pay is supported
+//        guard self.provider.canSubmitPaymentRequest(paymentRequest) else {
+//            NSLog("Apple Pay is not supported.")
+//            return
+//        }
+//
+//        // Present the Apple Pay authorization view controller
+//        guard let viewController = PKPaymentAuthorizationViewController(paymentRequest: paymentRequest) else {
+//            NSLog("Unable to initialize PKPaymentAuthorizationViewController.")
+//            return
+//        }
+//
+//        viewController.delegate = self
+//
+//        if let topViewController = UIApplication.shared.windows.first?.rootViewController {
+//            topViewController.present(viewController, animated: true, completion: nil)
+//        } else {
+//            NSLog("No root view controller available to present the Apple Pay view.")
+//        }
+//    }
 
-       if self.mode == "live" {
-           self.provider = OPPPaymentProvider(mode: OPPProviderMode.live)
-       }else{
-           self.provider = OPPPaymentProvider(mode: OPPProviderMode.test)
-       }
-        let paymentRequest =  self.provider.paymentRequest(
-            withMerchantIdentifier: self.applePaybundel,
-            countryCode: self.countryCode))
-
-        paymentRequest.currencyCode = self.currencyCode
-
-        paymentRequest.paymentSummaryItems = [
-            PKPaymentSummaryItem(label:self.companyName,
-                                 amount: NSDecimalNumber(value: self.amount))
-        ]
-
-        if  self.provider.canSubmitPaymentRequest(paymentRequest) {
-            if let vc = PKPaymentAuthorizationViewController(paymentRequest: paymentRequest) as PKPaymentAuthorizationViewController? {
-                vc.delegate = self
-                UIApplication.shared.windows.first?.rootViewController?.present(vc, animated: true, completion: nil)
-            } else {
-                NSLog("Apple Pay not supported.");
-            }
-        }
-    }
 
     private func openCustomUI(checkoutId: String,result1: @escaping FlutterResult) {
 
@@ -271,25 +285,44 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
             }
     }
 
-       @objc func didReceiveAsynchronousPaymentCallback(result: @escaping FlutterResult) {
-           NotificationCenter.default.removeObserver(self, name: Notification.Name(rawValue: "AsyncPaymentCompletedNotificationKey"), object: nil)
-           if self.type == "ReadyUI" || self.type=="APPLEPAY"||self.type=="StoredCards"{
-               self.checkoutProvider?.dismissCheckout(animated: true) {
-                   DispatchQueue.main.async {
-                       result("success")
-                   }
-               }
-           }
+    @objc func didReceiveAsynchronousPaymentCallback(result: @escaping FlutterResult) {
+        // Remove the notification observer
+        NotificationCenter.default.removeObserver(self, name: Notification.Name(rawValue: "AsyncPaymentCompletedNotificationKey"), object: nil)
 
-           else {
-               self.safariVC?.dismiss(animated: true) {
-                   DispatchQueue.main.async {
-                       result("success")
-                   }
-               }
-           }
+        // Handle dismissal for different payment types
+        if self.type == "ReadyUI" || self.type == "APPLEPAY" || self.type == "StoredCards" {
+            // Dismiss ReadyUI, Apple Pay, or Stored Cards checkout view
+            self.checkoutProvider?.dismissCheckout(animated: true) {
+                // Dismiss any presented view controller as a fallback
+                self.dismissAllPresentedViews {
+                    DispatchQueue.main.async {
+                        result("success")
+                    }
+                }
+            }
+        } else {
+            // Dismiss Safari view controller for other payment types
+            self.safariVC?.dismiss(animated: true) {
+                DispatchQueue.main.async {
+                    result("success")
+                }
+            }
+        }
+    }
 
-       }
+    /// Helper function to dismiss all presented views
+    private func dismissAllPresentedViews(completion: @escaping () -> Void) {
+        if let rootViewController = UIApplication.shared.windows.first?.rootViewController {
+            if let presentedViewController = rootViewController.presentedViewController {
+                presentedViewController.dismiss(animated: true, completion: completion)
+            } else {
+                completion()
+            }
+        } else {
+            completion()
+        }
+    }
+
      public func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
            var handler:Bool = false
            if url.scheme?.caseInsensitiveCompare( self.shopperResultURL) == .orderedSame {
