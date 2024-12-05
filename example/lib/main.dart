@@ -1,4 +1,6 @@
+import 'dart:developer';
 import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:hyperpay_plugin/flutter_hyperpay.dart';
 import 'dart:convert';
@@ -42,11 +44,18 @@ class _MyHomePageState extends State<MyHomePage> {
   late FlutterHyperPay flutterHyperPay;
   @override
   void initState() {
+
     flutterHyperPay = FlutterHyperPay(
       shopperResultUrl: InAppPaymentSetting.shopperResultUrl,
       paymentMode: PaymentMode.test,
       lang: InAppPaymentSetting.getLang(),
     );
+    Future.delayed(Duration.zero,() async {
+
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      log('Running on ${androidInfo.toString()}');
+    });
     super.initState();
   }
 
