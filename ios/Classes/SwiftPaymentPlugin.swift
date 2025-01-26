@@ -241,9 +241,19 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
             }
             else  if !OPPCardPaymentParams.isExpiryMonthValid(self.month) {
                 self.createalart(titletext: "Expiry Month is Invalid", msgtext: "")
+                  result1("error")
             }
             else {
                 do {
+                 print("""
+                    Created OPPCardPaymentParams:
+                    - Checkout ID: \(checkoutId)
+                    - Payment Brand: \(self.brands)
+                    - Holder Name: \(self.holder)
+                    - Card Number: \(String(self.number)) // Only log the last 4 digits for security
+                    - Expiry Month: \(self.month)
+                    - Expiry Year: \(self.year)
+                    """)
                     let params = try OPPCardPaymentParams(checkoutID: checkoutId, paymentBrand: self.brands, holder: self.holder, number: self.number, expiryMonth: self.month, expiryYear: self.year, cvv: self.cvv)
                     var isEnabledTokenization:Bool = false;
                     if(self.setStorePaymentDetailsMode=="true"){
@@ -257,8 +267,8 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                         (transaction, error) in
                         guard let transaction = self.transaction else {
                             // Handle invalid transaction, check error
-                            self.createalart(titletext: error as! String, msgtext: error as! String)
-                            return
+                            let errorMessage = error?.localizedDescription ?? "Unknown error occurred"
+                            self.createalart(titletext: "Error", msgtext: errorMessage) ;                           return
                         }
                         if transaction.type == .asynchronous {
                             self.safariVC = SFSafariViewController(url: self.transaction!.redirectURL!)
@@ -272,16 +282,24 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                         }
                         else {
                             // Handle the error
-                            self.createalart(titletext: error as! String, msgtext: "Plesae try again")
+                            let errorMessage = error?.localizedDescription ?? "Unknown error occurred"
+                            self.createalart(titletext: "Error", msgtext: errorMessage) ;
+//                            self.createalart(titletext: error as! String, msgtext: "Plesae try again")
                         }
                     }
                     // Set shopper result URL
                     //    params.shopperResultURL = "com.companyname.appname.payments://result"
                 }
-                catch let error as NSError {
-                    // See error.code (OPPErrorCode) and error.localizedDescription to identify the reason of failure
-                    self.createalart(titletext: error.localizedDescription, msgtext: "")
-                }
+               catch let error as NSError {
+                   // See error.code (OPPErrorCode) and error.localizedDescription to identify the reason of failure
+ // Log the error details for debugging
+    print("Error occurred: \(error.localizedDescription), Code: \(error.code)")
+
+    // Provide additional details if needed
+    let detailedMessage = "Error Code: \(error.code)\nPlease try again later."
+
+    // Show an alert with the error details
+    self.createalart(titletext: "Error", msgtext: detailedMessage)               }
             }
     }
 
