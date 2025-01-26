@@ -224,13 +224,13 @@ class _MyHomePageState extends State<MyHomePage> {
   payWithApplePAY({required String checkoutId}) async {
     PaymentResultData paymentResultData;
 
-    paymentResultData = await flutterHyperPay.payWithApplePAY(
+    paymentResultData = await flutterHyperPay.readyUICards(
       readyUI: ReadyUI(
         checkoutId: checkoutId,
         merchantIdApplePayIOS: InAppPaymentSetting.merchantId,
         countryCodeApplePayIOS: InAppPaymentSetting.countryCode,
         companyNameApplePayIOS: "Test Co",
-        themColorHexIOS: "#000000", // FOR IOS ONLY
+        themColorHexIOS: "#000000", brandsName: ["APPLEPAY"], // FOR IOS ONLY
       ),
     );
 

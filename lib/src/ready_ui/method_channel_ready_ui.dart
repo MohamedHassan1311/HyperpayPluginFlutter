@@ -9,16 +9,16 @@ import '../helper/helper.dart';
 /// If there is any error, it is caught and a PaymentResultData object with error string is returned.
 Future<PaymentResultData> implementPayment(
     {required List<String> brands,
-    required String checkoutId,
-    required String channelName,
-    required String shopperResultUrl,
-    required String lang,
-    required PaymentMode paymentMode,
-    required String merchantId,
-    required String countryCode,
-    String? companyName = "",
-    String? themColorHexIOS,
-    required bool setStorePaymentDetailsMode}) async {
+      required String checkoutId,
+      required String channelName,
+      required String shopperResultUrl,
+      required String lang,
+      required PaymentMode paymentMode,
+      required String merchantId,
+      required String countryCode,
+      String? companyName = "",
+      String? themColorHexIOS,
+      required bool setStorePaymentDetailsMode}) async {
   String transactionStatus;
   var platform = MethodChannel(channelName);
   try {
@@ -53,15 +53,15 @@ Future<PaymentResultData> implementPayment(
 /// checkoutid, brand, lang, themColorHexIOS, ShopperResultUrl, and setStorePaymentDetailsMode.
 Map<String, dynamic> getReadyModelCards(
     {required List<String> brands,
-    required String checkoutId,
-    required String shopperResultUrl,
-    required String lang,
-    required PaymentMode paymentMode,
-    required String merchantId,
-    required String countryCode,
-    String? companyName = "",
-    String? themColorHexIOS,
-    required bool setStorePaymentDetailsMode}) {
+      required String checkoutId,
+      required String shopperResultUrl,
+      required String lang,
+      required PaymentMode paymentMode,
+      required String merchantId,
+      required String countryCode,
+      String? companyName = "",
+      String? themColorHexIOS,
+      required bool setStorePaymentDetailsMode}) {
   return {
     "type": PaymentConst.readyUi,
     "mode": paymentMode.toString().split('.').last,

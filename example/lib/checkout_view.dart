@@ -40,7 +40,7 @@ class _CheckoutViewState extends State<CheckoutView> {
   void initState() {
     flutterHyperPay = FlutterHyperPay(
       shopperResultUrl: InAppPaymentSetting.shopperResultUrl,
-      paymentMode:  PaymentMode.test,
+      paymentMode:  PaymentMode.live,
       lang: InAppPaymentSetting.getLang(),
     );
     super.initState();
@@ -165,12 +165,12 @@ class _CheckoutViewState extends State<CheckoutView> {
     paymentResultData = await flutterHyperPay.customUICards(
       customUI: CustomUI(
         brandName: brandType.name.toUpperCase(),
-        checkoutId: checkoutId!,
-        cardNumber: cardNumberController.text.replaceAll(' ', ''),
+        checkoutId: "AA677500ED90E61482F52F88D85A58E8.prod01-vm-tx05"!,
+        cardNumber: '4909800005717290',
         holderName:  holderNameController.text,
-        month: expiryController.text.split('/')[0],
-        year: '20' + expiryController.text.split('/')[1],
-        cvv: cvvController.text,
+        month: "07",
+        year: "2027",
+        cvv: "106",
         enabledTokenization: false, // default
       ),
     );

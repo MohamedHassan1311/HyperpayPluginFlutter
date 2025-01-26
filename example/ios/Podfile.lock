@@ -1,4 +1,6 @@
 PODS:
+  - device_info_plus (0.0.1):
+    - Flutter
   - Flutter (1.0.0)
   - hyperpay_plugin (0.0.4):
     - Flutter
@@ -6,11 +8,14 @@ PODS:
   - hyperpay_sdk (6.14.0)
 
 DEPENDENCIES:
+  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
   - hyperpay_plugin (from `.symlinks/plugins/hyperpay_plugin/ios`)
   - hyperpay_sdk (from `https://github.com/MohamedHassan1311/hyperpaysdkIOS.git`)
 
 EXTERNAL SOURCES:
+  device_info_plus:
+    :path: ".symlinks/plugins/device_info_plus/ios"
   Flutter:
     :path: Flutter
   hyperpay_plugin:
@@ -24,8 +29,9 @@ CHECKOUT OPTIONS:
     :git: https://github.com/MohamedHassan1311/hyperpaysdkIOS.git
 
 SPEC CHECKSUMS:
+  device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  hyperpay_plugin: 644c3e4ae8f57a57c705c3ae8ffd6a6de231cef1
+  hyperpay_plugin: 8b2847238813399d3bc100f892fc62930af63a87
   hyperpay_sdk: d9b4d2dd30ca7c1a0680a65811410da30eb8d44e
 
 PODFILE CHECKSUM: 69446eda80c0fbfb17621c37993f453ef7a96dbb
