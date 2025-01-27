@@ -209,6 +209,14 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
             else {
                 do {
                     let params = try OPPCardPaymentParams(checkoutID: checkoutId, paymentBrand: self.brands, holder: self.holder, number: self.number, expiryMonth: self.month, expiryYear: self.year, cvv: self.cvv)
+
+                              print(params.cvv)
+                                           print(params.expiryMonth)
+                                           print(params.expiryYear)
+                                           print(params.holder)
+                                           print(params.number)
+                                           print(params.paymentBrand)
+                                           print(params.checkoutID)
                     var isEnabledTokenization:Bool = false;
                     if(self.setStorePaymentDetailsMode=="true"){
                         isEnabledTokenization=true;
@@ -238,9 +246,11 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                         }
                         else {
                             // Handle the error
-                                    let errorMessage = error?.localizedDescription ?? "Please try again"
+//                                    let errorMessage = error?.localizedDescription ?? "Please try again"
+                                            print(error.debugDescription)
+                                                                       print(error?.localizedDescription)
 
-                                                 result1(FlutterError.init(code: "1",message: "Error: " + errorMessage,details: nil))
+//                                                 result1(FlutterError.init(code: "1",message: "Error: " + errorMessage,details: nil))
 
 //                            self.createalart(titletext: error as! String, msgtext: "Plesae try again")
                         }
