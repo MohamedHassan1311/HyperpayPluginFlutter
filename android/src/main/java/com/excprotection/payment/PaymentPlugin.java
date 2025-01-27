@@ -39,6 +39,8 @@ import android.widget.Toast;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import com.oppwa.mobile.connect.provider.ThreeDSWorkflowListener;
+
 
 public class PaymentPlugin  implements
     PluginRegistry.ActivityResultListener ,ActivityAware
@@ -134,6 +136,12 @@ public class PaymentPlugin  implements
             //LIVE MODE
             checkoutSettings = new CheckoutSettings(checkoutId, paymentBrands,
                 Connect.ProviderMode.LIVE);
+            paymentProvider.setThreeDSWorkflowListener(new ThreeDSWorkflowListener() {
+                @Override
+                public Activity onThreeDSChallengeRequired() {
+                    return activity;
+                }
+            });
         } else {
             // TEST MODE
             checkoutSettings = new CheckoutSettings(checkoutId, paymentBrands,
