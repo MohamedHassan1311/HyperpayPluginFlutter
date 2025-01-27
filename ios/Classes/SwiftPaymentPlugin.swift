@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import SafariServices
 
-public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerDelegate, OPPCheckoutProviderDelegate ,OPPThreeDSEventListener  {
+public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerDelegate, OPPCheckoutProviderDelegate   {
     var type:String = "";
     var mode:String = "";
     var checkoutid:String = "";
@@ -42,6 +42,8 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
     let instance = SwiftPaymentPlugin()
     registrar.addApplicationDelegate(instance)
     registrar.addMethodCallDelegate(instance, channel: channel)
+
+
 
   }
 
