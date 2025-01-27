@@ -136,18 +136,18 @@ public class PaymentPlugin  implements
             //LIVE MODE
             checkoutSettings = new CheckoutSettings(checkoutId, paymentBrands,
                 Connect.ProviderMode.LIVE);
-            paymentProvider.setThreeDSWorkflowListener(new ThreeDSWorkflowListener() {
-                @Override
-                public Activity onThreeDSChallengeRequired() {
-                    return activity;
-                }
-            });
+
         } else {
             // TEST MODE
             checkoutSettings = new CheckoutSettings(checkoutId, paymentBrands,
                 Connect.ProviderMode.TEST);
         }
-
+        paymentProvider.setThreeDSWorkflowListener(new ThreeDSWorkflowListener() {
+            @Override
+            public Activity onThreeDSChallengeRequired() {
+                return activity;
+            }
+        });
         // SET LANG
         checkoutSettings.setLocale(Lang);
 
@@ -257,7 +257,12 @@ public class PaymentPlugin  implements
                 paymentParams.setShopperResultUrl(ShopperResultUrl + "://result");
 
                 Transaction transaction = new Transaction(paymentParams);
-
+                paymentProvider.setThreeDSWorkflowListener(new ThreeDSWorkflowListener() {
+                    @Override
+                    public Activity onThreeDSChallengeRequired() {
+                        return activity;
+                    }
+                });
                 //Set Mode;
                 boolean resultMode = mode.equals("test");
                 Connect.ProviderMode providerMode ;
