@@ -217,7 +217,11 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                         (transaction, error) in
                         guard let transaction = self.transaction else {
                             // Handle invalid transaction, check error
-                            self.createalart(titletext: error as! String, msgtext: error as! String)
+                                                                let errorMessage = error?.localizedDescription ?? "Please try again"
+
+                                                 result1(FlutterError.init(code: "1",message: "Error: " + errorMessage,details: nil))
+
+//                            self.createalart(titletext: error as! String, msgtext: error as! String)
                             return
                         }
                         if transaction.type == .asynchronous {
@@ -232,7 +236,11 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                         }
                         else {
                             // Handle the error
-                            self.createalart(titletext: error as! String, msgtext: "Plesae try again")
+                                    let errorMessage = error?.localizedDescription ?? "Please try again"
+
+                                                 result1(FlutterError.init(code: "1",message: "Error: " + errorMessage,details: nil))
+
+//                            self.createalart(titletext: error as! String, msgtext: "Plesae try again")
                         }
                     }
                     // Set shopper result URL
