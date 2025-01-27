@@ -36,7 +36,6 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
     var window: UIWindow?
     var Navcontroller:UINavigationController?
 
-
   public static func register(with registrar: FlutterPluginRegistrar) {
     let flutterChannel:String = "Hyperpay.demo.fultter/channel";
     let channel = FlutterMethodChannel(name: flutterChannel, binaryMessenger: registrar.messenger())
@@ -161,6 +160,10 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                  }
                  else if transaction.type == .asynchronous {
                      NotificationCenter.default.addObserver(self, selector: #selector(self.didReceiveAsynchronousPaymentCallback), name: Notification.Name(rawValue: "AsyncPaymentCompletedNotificationKey"), object: nil)
+                           self.safariVC = SFSafariViewController(url: self.transaction!.redirectURL!)
+                            self.safariVC?.delegate = self;
+
+
                  }
                  else {
                      // result1("error")
@@ -330,16 +333,16 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
          checkoutSettings.theme.accentColor = UIColor(hexString:hexColorString);
      }
 
-      public func onThreeDSChallengeRequired(completion: @escaping (Bool) -> Void) {
-             // Example implementation
-             completion(true)
-         }
 
-         // Fix 2: Declare the method as public
-         public func onThreeDSConfigRequired(completion: @escaping (Bool) -> Void) {
-             // Example implementation
-             completion(true)
-         }
+  public  func onThreeDSChallengeRequired(completion: @escaping (UINavigationController) -> Void) {
+        completion(self.Navcontroller!)
+       }
+
+  public  func onThreeDSConfigRequired(completion: @escaping (OPPThreeDSConfig) -> Void) {
+           let config = OPPThreeDSConfig()
+           config.appBundleID = "com.example.hyperpayFlutter"
+           completion(config)
+       }
 
 }
 
