@@ -229,9 +229,8 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                         (transaction, error) in
                         guard let transaction = self.transaction else {
                             // Handle invalid transaction, check error
-                                                 result1(FlutterError.init(code: "1",message: "Error: " + self.transaction.debugDescription,details: nil))
-
-//                            self.createalart(titletext: error as! String, msgtext: error as! String)
+                                    self.createalart(titletext: error as! String, msgtext: "")
+                                                                return
                             return
                         }
                         if transaction.type == .asynchronous {
@@ -245,14 +244,11 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                             result1("success")
                         }
                         else {
-                            // Handle the error
-//                                    let errorMessage = error?.localizedDescription ?? "Please try again"
+
                                             print(error.debugDescription)
                                                                        print(error?.localizedDescription)
 
-//                                                 result1(FlutterError.init(code: "1",message: "Error: " + errorMessage,details: nil))
-
-//                            self.createalart(titletext: error as! String, msgtext: "Plesae try again")
+//
                         }
                     }
                     // Set shopper result URL
@@ -260,7 +256,8 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                 }
                 catch let error as NSError {
                     // See error.code (OPPErrorCode) and error.localizedDescription to identify the reason of failure
-                    self.createalart(titletext: error.localizedDescription, msgtext: "")
+                     print(params.checkoutID)
+                    self.createalart(titletext: error.localizedDescription ?? "reason", msgtext: "")
                 }
             }
     }
