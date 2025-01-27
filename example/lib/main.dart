@@ -50,12 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
       paymentMode: PaymentMode.test,
       lang: InAppPaymentSetting.getLang(),
     );
-    Future.delayed(Duration.zero,() async {
 
-      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      log('Running on ${androidInfo.toString()}');
-    });
     super.initState();
   }
 

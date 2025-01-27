@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import SafariServices
 
-public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerDelegate, OPPCheckoutProviderDelegate   {
+public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerDelegate, OPPCheckoutProviderDelegate ,OPPThreeDSEventListener  {
     var type:String = "";
     var mode:String = "";
     var checkoutid:String = "";
@@ -34,6 +34,7 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
     var checkoutProvider: OPPCheckoutProvider?
     var Presult:FlutterResult?
     var window: UIWindow?
+    var Navcontroller:UINavigationController?
 
 
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -217,9 +218,7 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                         (transaction, error) in
                         guard let transaction = self.transaction else {
                             // Handle invalid transaction, check error
-                                                                let errorMessage = error?.localizedDescription ?? "Please try again"
-
-                                                 result1(FlutterError.init(code: "1",message: "Error: " + errorMessage,details: nil))
+                                                 result1(FlutterError.init(code: "1",message: "Error: " + self.transaction.debugDescription,details: nil))
 
 //                            self.createalart(titletext: error as! String, msgtext: error as! String)
                             return
@@ -322,6 +321,7 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
            return formatter.number(from: string) as? NSDecimalNumber ?? 0
        }
 
+
     func setThem( checkoutSettings :OPPCheckoutSettings,hexColorString :String){
          // General colors of the checkout UI
          checkoutSettings.theme.confirmationButtonColor = UIColor(red:0,green:0.75,blue:0,alpha:1);
@@ -329,7 +329,20 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
          checkoutSettings.theme.cellHighlightedBackgroundColor = UIColor(hexString:hexColorString);
          checkoutSettings.theme.accentColor = UIColor(hexString:hexColorString);
      }
+
+      public func onThreeDSChallengeRequired(completion: @escaping (Bool) -> Void) {
+             // Example implementation
+             completion(true)
+         }
+
+         // Fix 2: Declare the method as public
+         public func onThreeDSConfigRequired(completion: @escaping (Bool) -> Void) {
+             // Example implementation
+             completion(true)
+         }
+
 }
+
 
 extension UIColor {
     convenience init(hexString: String) {
