@@ -340,7 +340,12 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
 
   public  func onThreeDSConfigRequired(completion: @escaping (OPPThreeDSConfig) -> Void) {
            let config = OPPThreeDSConfig()
-           config.appBundleID = "com.example.hyperpayFlutter"
+             if let bundleID = Bundle.main.bundleIdentifier {
+                   config.appBundleID = bundleID
+               } else {
+                   // Provide a fallback or handle the case where bundle ID is nil
+                   config.appBundleID = self.shopperResultURL
+               }
            completion(config)
        }
 
