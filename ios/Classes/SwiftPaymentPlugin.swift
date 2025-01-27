@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import SafariServices
 
-public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerDelegate, OPPCheckoutProviderDelegate   {
+public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerDelegate, OPPCheckoutProviderDelegate ,OPPThreeDSEventListener  {
     var type:String = "";
     var mode:String = "";
     var checkoutid:String = "";
@@ -42,8 +42,6 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
     let instance = SwiftPaymentPlugin()
     registrar.addApplicationDelegate(instance)
     registrar.addMethodCallDelegate(instance, channel: channel)
-
-
 
   }
 
@@ -212,13 +210,7 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                 do {
                     let params = try OPPCardPaymentParams(checkoutID: checkoutId, paymentBrand: self.brands, holder: self.holder, number: self.number, expiryMonth: self.month, expiryYear: self.year, cvv: self.cvv)
 
-                              print(params.cvv)
-                                           print(params.expiryMonth)
-                                           print(params.expiryYear)
-                                           print(params.holder)
-                                           print(params.number)
-                                           print(params.paymentBrand)
-                                           print(params.checkoutID)
+
                     var isEnabledTokenization:Bool = false;
                     if(self.setStorePaymentDetailsMode=="true"){
                         isEnabledTokenization=true;
@@ -258,7 +250,6 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                 }
                 catch let error as NSError {
                     // See error.code (OPPErrorCode) and error.localizedDescription to identify the reason of failure
-                     print(params.checkoutID)
                     self.createalart(titletext: error.localizedDescription ?? "reason", msgtext: "")
                 }
             }
