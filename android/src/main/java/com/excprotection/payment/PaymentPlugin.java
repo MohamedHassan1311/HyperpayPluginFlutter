@@ -137,6 +137,7 @@ public class PaymentPlugin  implements
             checkoutSettings = new CheckoutSettings(checkoutId, paymentBrands,
                 Connect.ProviderMode.LIVE);
 
+
         } else {
             // TEST MODE
             checkoutSettings = new CheckoutSettings(checkoutId, paymentBrands,
@@ -162,7 +163,11 @@ public class PaymentPlugin  implements
         //SAVE PAYMENT CARDS FOR NEXT
         if (setStorePaymentDetailsMode.equals("true")) {
             checkoutSettings.setStorePaymentDetailsMode(CheckoutStorePaymentDetailsMode.PROMPT);
+//            checkoutSettings.storePaymentDetailsMode = CheckoutStorePaymentDetailsMode.NEVER;
+        }else{
+            checkoutSettings.setStorePaymentDetailsMode(CheckoutStorePaymentDetailsMode.NEVER);
         }
+
         //CHANGE THEME
         checkoutSettings.setThemeResId(R.style.NewCheckoutTheme);
 

@@ -139,6 +139,9 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
              if self.setStorePaymentDetailsMode=="true"{
                  checkoutSettings.storePaymentDetails = OPPCheckoutStorePaymentDetailsMode.prompt;
              }
+              else {
+                 checkoutSettings.storePaymentDetails = OPPCheckoutStorePaymentDetailsMode.never;
+             }
              self.setThem(checkoutSettings: checkoutSettings, hexColorString: self.themColorHex)
              self.checkoutProvider = OPPCheckoutProvider(paymentProvider: self.provider, checkoutID: checkoutId, settings: checkoutSettings)!
              self.checkoutProvider?.delegate = self

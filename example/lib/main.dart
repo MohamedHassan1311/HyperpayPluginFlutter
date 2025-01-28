@@ -187,7 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
           companyNameApplePayIOS: "Test Co",
           themColorHexIOS: "#000000", // FOR IOS ONLY
           setStorePaymentDetailsMode:
-              true // store payment details for future use
+              false // store payment details for future use
           ),
     );
 
