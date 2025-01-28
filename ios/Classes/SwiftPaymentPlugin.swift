@@ -124,7 +124,7 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                      paymentRequest.paymentSummaryItems = [PKPaymentSummaryItem(label: self.companyName, amount: NSDecimalNumber(value: self.amount))]
 
 //                     if #available(iOS 12.1.1, *) {
-                         paymentRequest.supportedNetworks = [ PKPaymentNetwork.mada ]
+                         paymentRequest.supportedNetworks = [ PKPaymentNetwork.mada,PKPaymentNetwork.visa, PKPaymentNetwork.masterCard  ]
 //                     }
 //                     else {
 //                         // Fallback on earlier versions
