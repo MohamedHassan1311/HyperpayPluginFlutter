@@ -154,12 +154,7 @@ public class PaymentPlugin  implements
 
         //SET SHOPPER
         //checkoutSettings.setShopperResultUrl(ShopperResultUrl + "://result");
-//        paymentProvider.setThreeDSWorkflowListener(new ThreeDSWorkflowListener() {
-//            @Override
-//            public Activity onThreeDSChallengeRequired() {
-//                return activity;
-//            }
-//        });
+
         //SAVE PAYMENT CARDS FOR NEXT
         if (setStorePaymentDetailsMode.equals("true")) {
             checkoutSettings.setStorePaymentDetailsMode(CheckoutStorePaymentDetailsMode.PROMPT);
