@@ -158,7 +158,6 @@ public class PaymentPlugin  implements
         //SAVE PAYMENT CARDS FOR NEXT
         if (setStorePaymentDetailsMode.equals("true")) {
             checkoutSettings.setStorePaymentDetailsMode(CheckoutStorePaymentDetailsMode.PROMPT);
-//            checkoutSettings.storePaymentDetailsMode = CheckoutStorePaymentDetailsMode.NEVER;
         }else{
             checkoutSettings.setStorePaymentDetailsMode(CheckoutStorePaymentDetailsMode.NEVER);
         }
