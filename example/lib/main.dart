@@ -124,7 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   _checkoutid = await Network.getCheckOut();
                   if (_checkoutid != null) {
                     payRequestNowCustomUiSTCPAY(
-                        checkoutId: _checkoutid!, phoneNumber: "505652110");
+                        checkoutId: _checkoutid!, phoneNumber: "5055555555");
                   }
                 },
                 child: const Text(

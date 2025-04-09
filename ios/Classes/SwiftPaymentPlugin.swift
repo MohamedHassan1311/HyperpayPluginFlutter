@@ -36,6 +36,12 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
     var window: UIWindow?
     var Navcontroller:UINavigationController?
 
+ public func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+        // Handle the event when the user finishes using the Safari view controller
+        print("Safari View Controller did finish.")
+        self.Presult?("success")
+
+    }
   public static func register(with registrar: FlutterPluginRegistrar) {
     let flutterChannel:String = "Hyperpay.demo.fultter/channel";
     let channel = FlutterMethodChannel(name: flutterChannel, binaryMessenger: registrar.messenger())
