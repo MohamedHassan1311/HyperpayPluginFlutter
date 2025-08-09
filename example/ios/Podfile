@@ -34,7 +34,9 @@ target 'Runner' do
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
-pod 'hyperpay_sdk', :git => 'https://github.com/MohamedHassan1311/hyperpaysdkIOS.git'
+pod 'hyperpay_sdk',
+    :git => 'https://github.com/MohamedHassan1311/hyperpaysdkIOS.git',
+    :branch => 'staging'
 
 $static_framework = ['hyperpay_plugin']
 
