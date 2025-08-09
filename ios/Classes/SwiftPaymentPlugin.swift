@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import SafariServices
 
-public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerDelegate, OPPCheckoutProviderDelegate, UIAdaptivePresentationControllerDelegate, OPPThreeDSEventListener  {
+public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerDelegate, OPPCheckoutProviderDelegate ,OPPThreeDSEventListener  {
     var type:String = "";
     var mode:String = "";
     var checkoutid:String = "";
@@ -34,10 +34,16 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
     var checkoutProvider: OPPCheckoutProvider?
     var Presult:FlutterResult?
     var window: UIWindow?
+    var Navcontroller:UINavigationController?
 
+ public func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+        // Handle the event when the user finishes using the Safari view controller
+        print("Safari View Controller did finish.")
+        self.Presult?("success")
 
+    }
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let flutterChannel:String = "Hyperpay.sdk.fultter/channel";
+    let flutterChannel:String = "Hyperpay.demo.fultter/channel";
     let channel = FlutterMethodChannel(name: flutterChannel, binaryMessenger: registrar.messenger())
     let instance = SwiftPaymentPlugin()
     registrar.addApplicationDelegate(instance)
@@ -56,17 +62,7 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
             self.shopperResultURL = (args!["ShopperResultUrl"] as? String)!
             self.lang=(args!["lang"] as? String)!
 
-
-
-             if self.type == "ReadyUI" {
-
-
-//                 if self.brandsReadyUi.contains("APPLEPAY") {
-//                     print(self.brandsReadyUi.count)
-//                     self.onApplePay()
-//
-//                }
-
+            if self.type == "ReadyUI" {
                 self.applePaybundel=(args!["merchantId"] as? String)!
                 self.countryCode=(args!["CountryCode"] as? String)!
                 self.companyName=(args!["companyName"] as? String)!
@@ -77,8 +73,8 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                 DispatchQueue.main.async {
                     self.openCheckoutUI(checkoutId: self.checkoutid, result1: result)
                 }
-            }
-            else if self.type  == "CustomUI"{
+            } else if self.type  == "CustomUI"{
+
                  self.brands = (args!["brand"] as? String)!
                  self.number = (args!["card_number"] as? String)!
                  self.holder = (args!["holder_name"] as? String)!
@@ -97,6 +93,25 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
             }
         }
 
+    @IBAction func checkoutButtonAction(_ sender: UIButton) {
+        // Set a delegate property for the OPPCheckoutProvider instance
+        self.checkoutProvider?.delegate = self
+
+    }
+
+    // Implement a callback, it will be called after holder text field loses focus or Pay button is pressed
+    public func checkoutProvider(
+        _ checkoutProvider: OPPCheckoutProvider, validateCardHolder cardHolder: String?
+    ) -> Bool {
+        guard let cardHolder = cardHolder, !cardHolder.trimmingCharacters(in: .whitespaces).isEmpty
+        else {
+            return false
+        }
+
+        return true
+        // return `true` if the card holder is valid, otherwise `false`
+    }
+
 
     private func openCheckoutUI(checkoutId: String,result1: @escaping FlutterResult) {
 
@@ -111,25 +126,27 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
              checkoutSettings.paymentBrands = self.brandsReadyUi;
              if(self.brandsReadyUi.contains("APPLEPAY")){
 
-//
                      let paymentRequest = OPPPaymentProvider.paymentRequest(withMerchantIdentifier: self.applePaybundel, countryCode: self.countryCode)
                      paymentRequest.paymentSummaryItems = [PKPaymentSummaryItem(label: self.companyName, amount: NSDecimalNumber(value: self.amount))]
 
-                     if #available(iOS 12.1.1, *) {
-                         paymentRequest.supportedNetworks = [ PKPaymentNetwork.mada,PKPaymentNetwork.visa, PKPaymentNetwork.masterCard ]
-                     }
-                     else {
-                         // Fallback on earlier versions
-                         paymentRequest.supportedNetworks = [ PKPaymentNetwork.visa, PKPaymentNetwork.masterCard ]
-                     }
+//                     if #available(iOS 12.1.1, *) {
+                         paymentRequest.supportedNetworks = [ PKPaymentNetwork.mada,PKPaymentNetwork.visa, PKPaymentNetwork.masterCard  ]
+//                     }
+//                     else {
+//                         // Fallback on earlier versions
+//                         paymentRequest.supportedNetworks = [ PKPaymentNetwork.visa, PKPaymentNetwork.masterCard ]
+//                     }
                      checkoutSettings.applePayPaymentRequest = paymentRequest
-//                     checkoutSettings.paymentBrands = ["APPLEPAY"]
+                    // checkoutSettings.paymentBrands = ["APPLEPAY"]
              }
              checkoutSettings.language = self.lang
              // Set available payment brands for your shop
              checkoutSettings.shopperResultURL = self.shopperResultURL+"://result"
              if self.setStorePaymentDetailsMode=="true"{
                  checkoutSettings.storePaymentDetails = OPPCheckoutStorePaymentDetailsMode.prompt;
+             }
+              else {
+                 checkoutSettings.storePaymentDetails = OPPCheckoutStorePaymentDetailsMode.never;
              }
              self.setThem(checkoutSettings: checkoutSettings, hexColorString: self.themColorHex)
              self.checkoutProvider = OPPCheckoutProvider(paymentProvider: self.provider, checkoutID: checkoutId, settings: checkoutSettings)!
@@ -152,6 +169,10 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                  }
                  else if transaction.type == .asynchronous {
                      NotificationCenter.default.addObserver(self, selector: #selector(self.didReceiveAsynchronousPaymentCallback), name: Notification.Name(rawValue: "AsyncPaymentCompletedNotificationKey"), object: nil)
+                           self.safariVC = SFSafariViewController(url: self.transaction!.redirectURL!)
+                            self.safariVC?.delegate = self;
+
+
                  }
                  else {
                      // result1("error")
@@ -161,7 +182,7 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                  }
              }
                                                     , cancelHandler: {
-                                                     result1("error")
+                                                    // result1("error")
                                                      result1(FlutterError.init(code: "1",message: "Error : operation cancel",details: nil))
                                                         // Executed if the shopper closes the payment page prematurely
                                                         print(self.transaction.debugDescription)
@@ -169,47 +190,6 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
          }
 
      }
-
-//    private func onApplePay() {
-//        // Set payment provider mode
-//        self.provider = OPPPaymentProvider(mode: self.mode == "live" ? .live : .test)
-//
-//        // Create payment request
-//        guard let paymentRequest = self.provider.paymentRequest(
-//            withMerchantIdentifier: self.applePaybundel,
-//            countryCode: self.countryCode
-//        ) else {
-//            NSLog("Failed to create payment request.")
-//            return
-//        }
-//
-//        // Configure payment request
-//        paymentRequest.currencyCode = self.currencyCode
-//        paymentRequest.paymentSummaryItems = [
-//            PKPaymentSummaryItem(label: self.companyName,
-//                                 amount: NSDecimalNumber(value: self.amount))
-//        ]
-//
-//        // Check if Apple Pay is supported
-//        guard self.provider.canSubmitPaymentRequest(paymentRequest) else {
-//            NSLog("Apple Pay is not supported.")
-//            return
-//        }
-//
-//        // Present the Apple Pay authorization view controller
-//        guard let viewController = PKPaymentAuthorizationViewController(paymentRequest: paymentRequest) else {
-//            NSLog("Unable to initialize PKPaymentAuthorizationViewController.")
-//            return
-//        }
-//
-//        viewController.delegate = self
-//
-//        if let topViewController = UIApplication.shared.windows.first?.rootViewController {
-//            topViewController.present(viewController, animated: true, completion: nil)
-//        } else {
-//            NSLog("No root view controller available to present the Apple Pay view.")
-//        }
-//    }
 
 
     private func openCustomUI(checkoutId: String,result1: @escaping FlutterResult) {
@@ -222,22 +202,15 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
 
              if !OPPCardPaymentParams.isNumberValid(self.number, luhnCheck: true) {
                 self.createalart(titletext: "Card Number is Invalid", msgtext: "")
-                 result1("error")
             }
             else  if !OPPCardPaymentParams.isHolderValid(self.holder) {
                 self.createalart(titletext: "Card Holder is Invalid", msgtext: "")
-                                 result1("error")
-
             }
             else   if !OPPCardPaymentParams.isCvvValid(self.cvv) {
                 self.createalart(titletext: "CVV is Invalid", msgtext: "")
-                                 result1("error")
-
             }
             else  if !OPPCardPaymentParams.isExpiryYearValid(self.year) {
                 self.createalart(titletext: "Expiry Year is Invalid", msgtext: "")
-                                 result1("error")
-
             }
             else  if !OPPCardPaymentParams.isExpiryMonthValid(self.month) {
                 self.createalart(titletext: "Expiry Month is Invalid", msgtext: "")
@@ -245,6 +218,8 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
             else {
                 do {
                     let params = try OPPCardPaymentParams(checkoutID: checkoutId, paymentBrand: self.brands, holder: self.holder, number: self.number, expiryMonth: self.month, expiryYear: self.year, cvv: self.cvv)
+
+
                     var isEnabledTokenization:Bool = false;
                     if(self.setStorePaymentDetailsMode=="true"){
                         isEnabledTokenization=true;
@@ -257,7 +232,8 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                         (transaction, error) in
                         guard let transaction = self.transaction else {
                             // Handle invalid transaction, check error
-                            self.createalart(titletext: error as! String, msgtext: error as! String)
+                                    self.createalart(titletext: error as! String, msgtext: "")
+                                                                return
                             return
                         }
                         if transaction.type == .asynchronous {
@@ -271,8 +247,11 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                             result1("success")
                         }
                         else {
-                            // Handle the error
-                            self.createalart(titletext: error as! String, msgtext: "Plesae try again")
+
+                                            print(error.debugDescription)
+                                                                       print(error?.localizedDescription)
+
+//
                         }
                     }
                     // Set shopper result URL
@@ -280,36 +259,30 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                 }
                 catch let error as NSError {
                     // See error.code (OPPErrorCode) and error.localizedDescription to identify the reason of failure
-                    self.createalart(titletext: error.localizedDescription, msgtext: "")
+                    self.createalart(titletext: error.localizedDescription ?? "reason", msgtext: "")
                 }
             }
     }
 
-    @objc func didReceiveAsynchronousPaymentCallback(result: @escaping FlutterResult) {
-        // Remove notification observer
-        NotificationCenter.default.removeObserver(self, name: Notification.Name(rawValue: "AsyncPaymentCompletedNotificationKey"), object: nil)
+       @objc func didReceiveAsynchronousPaymentCallback(result: @escaping FlutterResult) {
+           NotificationCenter.default.removeObserver(self, name: Notification.Name(rawValue: "AsyncPaymentCompletedNotificationKey"), object: nil)
+           if self.type == "ReadyUI" || self.type=="APPLEPAY"||self.type=="StoredCards"{
+               self.checkoutProvider?.dismissCheckout(animated: true) {
+                   DispatchQueue.main.async {
+                       result("success")
+                   }
+               }
+           }
 
-        // Dismiss all views, regardless of the payment type
-        self.dismissAllPresentedViews {
-            DispatchQueue.main.async {
-                result("success")
-            }
-        }
-    }
+           else {
+               self.safariVC?.dismiss(animated: true) {
+                   DispatchQueue.main.async {
+                       result("success")
+                   }
+               }
+           }
 
-    /// Helper function to dismiss all presented views
-    private func dismissAllPresentedViews(completion: @escaping () -> Void) {
-        if let rootViewController = UIApplication.shared.windows.first?.rootViewController {
-            if let presentedViewController = rootViewController.presentedViewController {
-                presentedViewController.dismiss(animated: true, completion: completion)
-            } else {
-                completion()
-            }
-        } else {
-            completion()
-        }
-    }
-
+       }
      public func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
            var handler:Bool = false
            if url.scheme?.caseInsensitiveCompare( self.shopperResultURL) == .orderedSame {
@@ -332,67 +305,61 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
            }
 
        }
-  public func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {
-      // Dismiss the Apple Pay authorization controller
-      controller.dismiss(animated: true) {
-          // Once dismissed, return the result and dismiss the checkout view
-          self.Presult?("success")
+       func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {
+           controller.dismiss(animated: true, completion: nil)
+       }
+       func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController, didAuthorizePayment payment: PKPayment, completion: @escaping (PKPaymentAuthorizationStatus) -> Void) {
+           if let params = try? OPPApplePayPaymentParams(checkoutID: self.checkoutid, tokenData: payment.token.paymentData) as OPPApplePayPaymentParams? {
+               self.transaction  = OPPTransaction(paymentParams: params)
+               self.provider.submitTransaction(OPPTransaction(paymentParams: params), completionHandler: {
+                   (transaction, error) in
+                   if (error != nil) {
+                       // see code attribute (OPPErrorCode) and NSLocalizedDescription to identify the reason of failure.
+                       self.createalart(titletext: "APPLEPAY Error", msgtext: "")
+                   }
+                   else {
+                       // send request to your server to obtain transaction status.
+                       completion(.success)
+                       self.Presult!("success")
+                   }
+               })
+           }
 
-          // Close the presentCheckout view or perform any other necessary actions
-          self.checkoutProvider?.dismissCheckout(animated: true, completion: {
-                self.Presult?("success")
-              // Optionally handle any additional actions here after dismissing the checkout view
-          })
-      }
-  }
-
-
-    func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController, didAuthorizePayment payment: PKPayment, completion: @escaping (PKPaymentAuthorizationStatus) -> Void) {
-        // Create Apple Pay payment params
-        if let params = try? OPPApplePayPaymentParams(checkoutID: self.checkoutid, tokenData: payment.token.paymentData) as OPPApplePayPaymentParams? {
-            self.transaction = OPPTransaction(paymentParams: params)
-            self.provider.submitTransaction(self.transaction!, completionHandler: { [weak self] (transaction, error) in
-                guard let self = self else { return }
-                if let error = error {
-                    // Handle error
-                    self.createalart(titletext: "Apple Pay Error", msgtext: error.localizedDescription)
-                    completion(.failure)
-                } else {
-                    // Transaction was successful
-                    completion(.success)
-                    // Notify Flutter and close all views
-                    self.Presult?("success")
-                    self.dismissAllPresentedViews {}
-                }
-            })
-        } else {
-            // Handle failure to create payment params
-            completion(.failure)
-            self.createalart(titletext: "Payment Error", msgtext: "Failed to create payment parameters")
-        }
-    }
-
+       }
        func decimal(with string: String) -> NSDecimalNumber {
            //  let formatter = NumberFormatter()
            let formatter = NumberFormatter()
            formatter.minimumFractionDigits = 2
            return formatter.number(from: string) as? NSDecimalNumber ?? 0
        }
-  public func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
-        self.Presult!("canceled")
-    }
 
-    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        self.Presult!("canceled")
-    }
+
     func setThem( checkoutSettings :OPPCheckoutSettings,hexColorString :String){
          // General colors of the checkout UI
-         checkoutSettings.theme.confirmationButtonColor = UIColor(hexString:hexColorString);
+         checkoutSettings.theme.confirmationButtonColor = UIColor(red:0,green:0.75,blue:0,alpha:1);
          checkoutSettings.theme.navigationBarBackgroundColor = UIColor(hexString:hexColorString);
          checkoutSettings.theme.cellHighlightedBackgroundColor = UIColor(hexString:hexColorString);
          checkoutSettings.theme.accentColor = UIColor(hexString:hexColorString);
      }
+
+
+  public  func onThreeDSChallengeRequired(completion: @escaping (UINavigationController) -> Void) {
+        completion(self.Navcontroller!)
+       }
+
+  public  func onThreeDSConfigRequired(completion: @escaping (OPPThreeDSConfig) -> Void) {
+           let config = OPPThreeDSConfig()
+             if let bundleID = Bundle.main.bundleIdentifier {
+                   config.appBundleID = bundleID
+               } else {
+                   // Provide a fallback or handle the case where bundle ID is nil
+                   config.appBundleID = self.shopperResultURL
+               }
+           completion(config)
+       }
+
 }
+
 
 extension UIColor {
     convenience init(hexString: String) {

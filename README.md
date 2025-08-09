@@ -20,7 +20,7 @@ The HyperPay platform offers a complete, easy-to-use guide to enable seamless in
     hyperpay_plugin:
     git:
       url: https://github.com/MohamedHassan1311/HyperpayPluginFlutter.git
-      ref: main
+      ref: new_version
 ```
 
 ### Android Setup

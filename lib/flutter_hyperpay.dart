@@ -14,7 +14,7 @@ part 'hyper_pay_const.dart';
 part 'enum.dart';
 
 class FlutterHyperPay {
-  String channelName = "Hyperpay.sdk.fultter/channel";
+  String channelName = "Hyperpay.demo.fultter/channel";
   String shopperResultUrl = "";
   String lang;
   PaymentMode paymentMode;
@@ -32,7 +32,7 @@ class FlutterHyperPay {
   /// The function waits for the payment operation to complete and returns the resulting PaymentResultData.
   Future<PaymentResultData> readyUICards({required ReadyUI readyUI}) async {
     return await implementPayment(
-      brands: readyUI.brandsName!,
+      brands: readyUI.brandsName,
       checkoutId: readyUI.checkoutId,
       shopperResultUrl: shopperResultUrl,
       channelName: channelName,
@@ -80,30 +80,10 @@ class FlutterHyperPay {
     );
   }
 
-  /// This function is used to do payment using custom UI. It takes "CustomUI" as an argument,
-  /// which consists of the brand name, checkout id, card number, holder name, month, year and cvv.
-  /// The function returns a Future of PaymentResultData.
-  Future<PaymentResultData> payWithApplePAY({required ReadyUI readyUI}) async {
-    return await implementPayment(
-      brands: ["APPLEPAY",],
-      checkoutId: readyUI.checkoutId,
-
-      shopperResultUrl: shopperResultUrl,
-      channelName: channelName,
-      paymentMode: paymentMode,
-      merchantId: readyUI.merchantIdApplePayIOS,
-      countryCode: readyUI.countryCodeApplePayIOS,
-      companyName: readyUI.companyNameApplePayIOS,
-      lang: lang,
-      themColorHexIOS: readyUI.themColorHexIOS,
-      setStorePaymentDetailsMode: readyUI.setStorePaymentDetailsMode,
-    );
-  }
-
   /// This function allows the user to make payments using their stored cards.
   /// It accepts an argument of type StoredCards and makes a call to the implementPaymentStoredCards
   /// function with the values required for the payment.
-  /// It returns a Future<PaymentResultData> which is the outcome of the payment.
+
   Future<PaymentResultData> payWithSoredCards(
       {required StoredCards storedCards}) async {
     return await implementPaymentStoredCards(

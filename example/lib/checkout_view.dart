@@ -161,10 +161,10 @@ class _CheckoutViewState extends State<CheckoutView> {
   payRequestNowCustomUi(
       ) async {
     PaymentResultData paymentResultData;
- final checkoutId =await  Network. getCheckOut();
+    final checkoutId =await  Network. getCheckOut();
     paymentResultData = await flutterHyperPay.customUICards(
       customUI: CustomUI(
-        brandName: brandType.name.toUpperCase(),
+        brandName: "MADA",
         checkoutId: checkoutId!,
         cardNumber: cardNumberController.text.replaceAll(' ', ''),
         holderName:  holderNameController.text,
@@ -176,10 +176,10 @@ class _CheckoutViewState extends State<CheckoutView> {
     );
     if (paymentResultData.paymentResult == PaymentResult.success ||
         paymentResultData.paymentResult == PaymentResult.sync) {
-    final result=await  Network. getpaymentstatus(checkoutId);
+      final result=await  Network. getpaymentstatus(checkoutId);
 
       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(
+        SnackBar(
           content: Text(result!.toString()),
 
         ),
@@ -196,10 +196,10 @@ class _CheckoutViewState extends State<CheckoutView> {
       prefixIcon: icon is IconData
           ? Icon(icon)
           : Container(
-              padding: const EdgeInsets.all(6),
-              width: 10,
-              child: Image.asset(icon),
-            ),
+        padding: const EdgeInsets.all(6),
+        width: 10,
+        child: Image.asset(icon),
+      ),
     );
   }
 }

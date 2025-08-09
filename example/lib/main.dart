@@ -50,12 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
       paymentMode: PaymentMode.test,
       lang: InAppPaymentSetting.getLang(),
     );
-    Future.delayed(Duration.zero,() async {
 
-      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      log('Running on ${androidInfo.toString()}');
-    });
     super.initState();
   }
 
@@ -129,7 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   _checkoutid = await Network.getCheckOut();
                   if (_checkoutid != null) {
                     payRequestNowCustomUiSTCPAY(
-                        checkoutId: _checkoutid!, phoneNumber: "505652110");
+                        checkoutId: _checkoutid!, phoneNumber: "5055555555");
                   }
                 },
                 child: const Text(
@@ -192,7 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
           companyNameApplePayIOS: "Test Co",
           themColorHexIOS: "#000000", // FOR IOS ONLY
           setStorePaymentDetailsMode:
-              true // store payment details for future use
+              false // store payment details for future use
           ),
     );
 
@@ -224,13 +219,13 @@ class _MyHomePageState extends State<MyHomePage> {
   payWithApplePAY({required String checkoutId}) async {
     PaymentResultData paymentResultData;
 
-    paymentResultData = await flutterHyperPay.payWithApplePAY(
+    paymentResultData = await flutterHyperPay.readyUICards(
       readyUI: ReadyUI(
         checkoutId: checkoutId,
         merchantIdApplePayIOS: InAppPaymentSetting.merchantId,
         countryCodeApplePayIOS: InAppPaymentSetting.countryCode,
         companyNameApplePayIOS: "Test Co",
-        themColorHexIOS: "#000000", // FOR IOS ONLY
+        themColorHexIOS: "#000000", brandsName: ["APPLEPAY"], // FOR IOS ONLY
       ),
     );
 

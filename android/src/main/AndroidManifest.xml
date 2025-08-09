@@ -23,12 +23,10 @@
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <activity
             android:name="com.oppwa.mobile.connect.checkout.dialog.CheckoutActivity"
-            android:configChanges="orientation"
             android:exported="false"
             android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustPan"
-            tools:replace="android:windowSoftInputMode" />
-        
+            tools:replace="android:exported,android:launchMode" />
+
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
