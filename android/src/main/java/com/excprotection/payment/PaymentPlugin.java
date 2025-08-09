@@ -262,6 +262,7 @@ public class PaymentPlugin  implements
                         return activity;
                     }
                 });
+
                 //Set Mode;
                 boolean resultMode = mode.equals("test");
                 Connect.ProviderMode providerMode ;
