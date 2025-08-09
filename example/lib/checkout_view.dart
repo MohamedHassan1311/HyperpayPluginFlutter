@@ -164,7 +164,7 @@ class _CheckoutViewState extends State<CheckoutView> {
     final checkoutId =await  Network. getCheckOut();
     paymentResultData = await flutterHyperPay.customUICards(
       customUI: CustomUI(
-        brandName: brandType.name.toUpperCase(),
+        brandName: "MADA",
         checkoutId: checkoutId!,
         cardNumber: cardNumberController.text.replaceAll(' ', ''),
         holderName:  holderNameController.text,

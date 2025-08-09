@@ -90,6 +90,10 @@ public class PaymentPlugin  implements
             Lang = call.argument("lang");
             ShopperResultUrl = call.argument("ShopperResultUrl");
 
+            // Debug: Show the expected redirect URL
+            sendDebugLogToFlutter("🚀 Payment Started",
+                "Expected redirect: " + ShopperResultUrl + "://result");
+
             switch (type != null ? type : "NullType") {
                 case "ReadyUI" :
                     brandsReadyUi = call.argument("brand");
@@ -368,13 +372,54 @@ public class PaymentPlugin  implements
             () -> Result.notImplemented());
     }
 
+    private void sendDebugLogToFlutter(String title, String message) {
+        handler.post(() -> {
+            try {
+                // Show Toast message on Android device
+                String toastMessage = title + ": " + message;
+                Toast.makeText(context, toastMessage, Toast.LENGTH_LONG).show();
+
+                // Log to Android logcat
+                android.util.Log.d("PaymentPlugin", "🔧 " + title + " - " + message);
+
+                // Also send to Flutter (if Flutter is listening)
+                java.util.Map<String, Object> debugData = new java.util.HashMap<>();
+                debugData.put("title", title);
+                debugData.put("message", message);
+                debugData.put("timestamp", System.currentTimeMillis());
+                channel.invokeMethod("onDebugLog", debugData);
+
+            } catch (Exception e) {
+                android.util.Log.e("PaymentPlugin", "Failed to send debug log", e);
+                // Fallback toast for errors
+                Toast.makeText(context, "Debug Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     @Override
     public boolean onNewIntent(@NonNull Intent intent) {
         // TO BACK TO VIEW
-        if (intent.getScheme() != null && intent.getScheme().equals(ShopperResultUrl)) {
+        String scheme = intent.getScheme();
+        String intentData = intent.getDataString();
+
+        android.util.Log.d("PaymentPlugin", "🔥 onNewIntent called with scheme: " + scheme);
+        android.util.Log.d("PaymentPlugin", "Expected ShopperResultUrl: " + ShopperResultUrl);
+        android.util.Log.d("PaymentPlugin", "Intent data: " + intentData);
+
+        // Send debug info as Toast (visible without Flutter code)
+        sendDebugLogToFlutter("🔥 Payment Redirect Attempt",
+            "Got: " + scheme + "\nExpected: " + ShopperResultUrl);
+
+        if (scheme != null && scheme.equals(ShopperResultUrl)) {
+            android.util.Log.d("PaymentPlugin", "✅ Payment redirect successful - calling success");
+            sendDebugLogToFlutter("✅ Payment Redirect SUCCESS", "Scheme matched! Redirecting to Flutter");
             success("success");
+            return true;
         }
-        return  true ;
+        android.util.Log.d("PaymentPlugin", "❌ Scheme mismatch - not handling this intent");
+        sendDebugLogToFlutter("❌ Payment Redirect FAILED", "Expected: " + ShopperResultUrl + " Got: " + scheme);
+        return false;
     }
 
 
@@ -408,13 +453,35 @@ public class PaymentPlugin  implements
 
     @Override
     public void transactionCompleted(@NonNull Transaction transaction) {
+        if (transaction == null) {
+            android.util.Log.w("PaymentPlugin", "Transaction is null");
+            sendDebugLogToFlutter("⚠️ Transaction Null", "No transaction data received");
+            return;
+        }
+
+        android.util.Log.d("PaymentPlugin", "Transaction completed with type: " + transaction.getTransactionType());
+
         if (transaction.getTransactionType() == TransactionType.SYNC) {
+            android.util.Log.d("PaymentPlugin", "SYNC transaction - calling success immediately");
+            sendDebugLogToFlutter("Transaction Complete", "SYNC transaction - success immediate");
             success("SYNC");
         } else {
-            /* wait for the callback in the s */
-            Uri uri = Uri.parse(transaction.getRedirectUrl());
-            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-            activity.startActivity(intent);
+            String redirectUrl = transaction.getRedirectUrl();
+            android.util.Log.d("PaymentPlugin", "ASYNC transaction - opening browser with URL: " + redirectUrl);
+
+            sendDebugLogToFlutter("🌐 Opening Browser",
+                "URL: " + redirectUrl + "\nWaiting for redirect to: " + ShopperResultUrl + "://result");
+
+            try {
+                Uri uri = Uri.parse(redirectUrl);
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                activity.startActivity(intent);
+
+                sendDebugLogToFlutter("✅ Browser Opened",
+                    "Complete payment in browser. App should auto-open when done.");
+            } catch (Exception e) {
+                sendDebugLogToFlutter("❌ Browser Error", "Failed to open browser: " + e.getMessage());
+            }
         }
     }
 
