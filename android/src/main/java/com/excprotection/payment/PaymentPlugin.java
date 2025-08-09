@@ -91,8 +91,8 @@ public class PaymentPlugin  implements
             ShopperResultUrl = call.argument("ShopperResultUrl");
 
             // Debug: Show the expected redirect URL
-            sendDebugLogToFlutter("🚀 Payment Started",
-                "Expected redirect: " + ShopperResultUrl + "://result");
+//            sendDebugLogToFlutter("🚀 Payment Started",
+//                "Expected redirect: " + ShopperResultUrl + "://result");
 
             switch (type != null ? type : "NullType") {
                 case "ReadyUI" :
