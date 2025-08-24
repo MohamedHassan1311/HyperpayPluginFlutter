@@ -417,7 +417,7 @@ public class PaymentPlugin implements
         handler.post(() -> {
             try {
                 String toastMessage = title + ": " + message;
-                Toast.makeText(context, toastMessage, Toast.LENGTH_LONG).show();
+//                Toast.makeText(context, toastMessage, Toast.LENGTH_LONG).show();
 
                 Log.d("PaymentPlugin", "🔧 " + title + " - " + message);
 
