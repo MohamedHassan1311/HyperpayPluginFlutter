@@ -327,34 +327,40 @@ public class PaymentPlugin  implements
 
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (resultCode) {
-            case CheckoutActivity.RESULT_OK :
-                /* transaction completed */
-                Transaction transaction = data.getParcelableExtra(CheckoutActivity.CHECKOUT_RESULT_TRANSACTION);
+        if (requestCode == 242) { // only handle our checkout
+            switch (resultCode) {
+                case CheckoutActivity.RESULT_OK:
+                    Transaction transaction = data.getParcelableExtra(CheckoutActivity.CHECKOUT_RESULT_TRANSACTION);
+                    if (transaction != null && transaction.getTransactionType() == TransactionType.SYNC) {
+                        success("SYNC");
+                    }
+                    break;
 
+                case CheckoutActivity.RESULT_CANCELED:
+                    // shopper canceled
+                    error("2", "Canceled", "");
+                    // ✅ close checkout activity
+                    if (activity != null) {
+                        activity.runOnUiThread(() -> {
+                            activity.finishActivity(242);
+                        });
+                    }
+                    break;
 
-                /* resource path if needed */
-                // String resourcePath = data.getStringExtra(CheckoutActivity.CHECKOUT_RESULT_RESOURCE_PATH);
-                if (transaction.getTransactionType() == TransactionType.SYNC) {
-                    /* check the result of synchronous transaction */
-                    success("SYNC");
-                }
-
-                break ;
-            case CheckoutActivity.RESULT_CANCELED :
-                /* shopper canceled the checkout process */
-                error("2", "Canceled", "");
-                break ;
-
-            case CheckoutActivity.RESULT_ERROR :
-                /* shopper error the checkout process */
-                error("3", "Checkout Result Error", "");
-                break ;
-
+                case CheckoutActivity.RESULT_ERROR:
+                    error("3", "Checkout Result Error", "");
+                    if (activity != null) {
+                        activity.runOnUiThread(() -> {
+                            activity.finishActivity(242);
+                        });
+                    }
+                    break;
+            }
+            return true;
         }
-
-        return  true ;
+        return false;
     }
+
 
     public void success(final Object result) {
         handler.post(
