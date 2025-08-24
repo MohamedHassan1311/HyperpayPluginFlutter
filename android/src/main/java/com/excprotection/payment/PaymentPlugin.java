@@ -157,7 +157,7 @@ public class PaymentPlugin  implements
         // checkoutSettings.setTotalAmountRequired(true);
 
         //SET SHOPPER
-        //checkoutSettings.setShopperResultUrl(ShopperResultUrl + "://result");
+        checkoutSettings.setShopperResultUrl(ShopperResultUrl + "://result");
 
         //SAVE PAYMENT CARDS FOR NEXT
         if (setStorePaymentDetailsMode.equals("true")) {
