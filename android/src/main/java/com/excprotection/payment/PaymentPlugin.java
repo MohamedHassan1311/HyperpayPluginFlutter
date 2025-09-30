@@ -145,7 +145,8 @@ public class PaymentPlugin implements
         // SHOW TOTAL PAYMENT AMOUNT IN BUTTON
         // checkoutSettings.setTotalAmountRequired(true);
 
-        //SET SHOPPER
+        //SET SHOPPER - Note: CheckoutSettings doesn't have setShopperResultUrl
+        // The redirect is handled automatically via onNewIntent when using ReadyUI
         //checkoutSettings.setShopperResultUrl(ShopperResultUrl + "://result");
 
         // SAVE PAYMENT CARDS FOR NEXT
@@ -196,8 +197,8 @@ public class PaymentPlugin implements
 
     private void handleCheckoutResult(@NonNull CheckoutActivityResult result) {
         if (result.isCanceled()) {
-            sendDebugLogToFlutter("❌ Checkout Canceled", "User canceled the payment");
-            error("2", "Canceled", "");
+            sendDebugLogToFlutter("⏸️ Checkout Pending", "User closed the payment");
+            error("PENDING", "Pending", "");
             return;
         }
 
@@ -368,8 +369,8 @@ public class PaymentPlugin implements
                     break;
 
                 case CheckoutActivity.RESULT_CANCELED:
-                    sendDebugLogToFlutter("❌ Checkout Canceled", "User canceled");
-                    error("2", "Canceled", "");
+                    sendDebugLogToFlutter("⏸️ Checkout Pending", "User closed the payment");
+                    error("PENDING", "Pending", "");
                     break;
 
                 case CheckoutActivity.RESULT_ERROR:
