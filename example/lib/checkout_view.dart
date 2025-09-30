@@ -161,27 +161,45 @@ class _CheckoutViewState extends State<CheckoutView> {
   payRequestNowCustomUi(
       ) async {
     PaymentResultData paymentResultData;
-    final checkoutId =await  Network. getCheckOut();
-    paymentResultData = await flutterHyperPay.customUICards(
-      customUI: CustomUI(
-        brandName: "MADA",
-        checkoutId: checkoutId!,
-        cardNumber: cardNumberController.text.replaceAll(' ', ''),
-        holderName:  holderNameController.text,
-        month: expiryController.text.split('/')[0],
-        year: '20' + expiryController.text.split('/')[1],
-        cvv: cvvController.text,
-        enabledTokenization: false, // default
-      ),
-    );
-    if (paymentResultData.paymentResult == PaymentResult.success ||
-        paymentResultData.paymentResult == PaymentResult.sync) {
-      final result=await  Network. getpaymentstatus(checkoutId);
+    try {
+      final checkoutId =await  Network. getCheckOut();
+      paymentResultData = await flutterHyperPay.customUICards(
+        customUI: CustomUI(
+          brandName: "MADA",
+          checkoutId: checkoutId!,
+          cardNumber: cardNumberController.text.replaceAll(' ', ''),
+          holderName:  holderNameController.text,
+          month: expiryController.text.split('/')[0],
+          year: '20' + expiryController.text.split('/')[1],
+          cvv: cvvController.text,
+          enabledTokenization: false, // default
+        ),
+      );
 
+      print('Payment Result: ${paymentResultData.paymentResult}');
+
+      if (paymentResultData.paymentResult == PaymentResult.success ||
+          paymentResultData.paymentResult == PaymentResult.sync) {
+        final result=await  Network. getpaymentstatus(checkoutId);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result!.toString()),
+          ),
+        );
+      } else {
+        print('Payment failed or cancelled: ${paymentResultData.paymentResult}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Payment cancelled or failed'),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Payment Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result!.toString()),
-
+          content: Text('Payment Error: $e'),
         ),
       );
     }

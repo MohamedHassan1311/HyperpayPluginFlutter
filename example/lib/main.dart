@@ -178,23 +178,29 @@ class _MyHomePageState extends State<MyHomePage> {
   payRequestNowReadyUI(
       {required List<String> brandsName, required String checkoutId}) async {
     PaymentResultData paymentResultData;
-    paymentResultData = await flutterHyperPay.readyUICards(
-      readyUI: ReadyUI(
-          brandsName: brandsName,
-          checkoutId: checkoutId,
-          merchantIdApplePayIOS: InAppPaymentSetting.merchantId,
-          countryCodeApplePayIOS: InAppPaymentSetting.countryCode,
-          companyNameApplePayIOS: "Test Co",
-          themColorHexIOS: "#000000", // FOR IOS ONLY
-          setStorePaymentDetailsMode:
-              false // store payment details for future use
-          ),
-    );
+    try {
+      paymentResultData = await flutterHyperPay.readyUICards(
+        readyUI: ReadyUI(
+            brandsName: brandsName,
+            checkoutId: checkoutId,
+            merchantIdApplePayIOS: InAppPaymentSetting.merchantId,
+            countryCodeApplePayIOS: InAppPaymentSetting.countryCode,
+            companyNameApplePayIOS: "Test Co",
+            themColorHexIOS: "#000000", // FOR IOS ONLY
+            setStorePaymentDetailsMode:
+                false // store payment details for future use
+            ),
+      );
 
-    print(paymentResultData.paymentResult);
-    if (paymentResultData.paymentResult == PaymentResult.success ||
-        paymentResultData.paymentResult == PaymentResult.sync) {
-      Network.getpaymentstatus(_checkoutid);
+      print('Payment Result: ${paymentResultData.paymentResult}');
+      if (paymentResultData.paymentResult == PaymentResult.success ||
+          paymentResultData.paymentResult == PaymentResult.sync) {
+        Network.getpaymentstatus(_checkoutid);
+      } else {
+        print('Payment failed or cancelled: ${paymentResultData.paymentResult}');
+      }
+    } catch (e) {
+      print('Payment Error: $e');
     }
   }
 
