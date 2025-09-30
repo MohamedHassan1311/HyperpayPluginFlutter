@@ -62,6 +62,7 @@ public class PaymentPlugin implements
     private Context context;
     private CheckoutSettings checkoutSettings;
     private ActivityResultLauncher<CheckoutSettings> checkoutLauncher;
+    private boolean isWaitingForBrowserResult = false;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -198,7 +199,7 @@ public class PaymentPlugin implements
     private void handleCheckoutResult(@NonNull CheckoutActivityResult result) {
         if (result.isCanceled()) {
             sendDebugLogToFlutter("⏸️ Checkout Pending", "User closed the payment");
-            error("PENDING", "Pending", "");
+            error("PENDING", "Pending", null);
             return;
         }
 
@@ -206,7 +207,7 @@ public class PaymentPlugin implements
             PaymentError error = result.getPaymentError();
             String errorMessage = error != null ? error.getErrorMessage() : "Unknown error";
             sendDebugLogToFlutter("❌ Checkout Error", errorMessage);
-            error("3", "Checkout Result Error: " + errorMessage, "");
+            error("3", "Checkout Result Error: " + errorMessage, null);
             return;
         }
 
@@ -370,12 +371,12 @@ public class PaymentPlugin implements
 
                 case CheckoutActivity.RESULT_CANCELED:
                     sendDebugLogToFlutter("⏸️ Checkout Pending", "User closed the payment");
-                    error("PENDING", "Pending", "");
+                    error("PENDING", "Pending", null);
                     break;
 
                 case CheckoutActivity.RESULT_ERROR:
                     sendDebugLogToFlutter("❌ Checkout Error", "Error occurred");
-                    error("3", "Checkout Result Error", "");
+                    error("3", "Checkout Result Error", null);
                     break;
 
                 default:
@@ -451,6 +452,7 @@ public class PaymentPlugin implements
             "Got: " + scheme + "\nExpected: " + ShopperResultUrl);
 
         if (scheme != null && scheme.equals(ShopperResultUrl)) {
+            isWaitingForBrowserResult = false;
             Log.d("PaymentPlugin", "✅ Payment redirect successful - calling success");
             sendDebugLogToFlutter("✅ Payment Redirect SUCCESS", "Scheme matched! Redirecting to Flutter");
             success("success");
@@ -503,6 +505,13 @@ public class PaymentPlugin implements
     public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
         activity = binding.getActivity();
         binding.addOnNewIntentListener(this);
+
+        // Check if user returned from browser without completing payment
+        if (isWaitingForBrowserResult && Result != null) {
+            sendDebugLogToFlutter("⏸️ Browser Closed", "User returned without completing payment");
+            isWaitingForBrowserResult = false;
+            error("PENDING", "Pending", null);
+        }
     }
 
     @Override
@@ -534,6 +543,7 @@ public class PaymentPlugin implements
                 "URL: " + redirectUrl + "\nWaiting for redirect to: " + ShopperResultUrl + "://result");
 
             try {
+                isWaitingForBrowserResult = true;
                 Uri uri = Uri.parse(redirectUrl);
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 activity.startActivity(intent);
@@ -541,6 +551,7 @@ public class PaymentPlugin implements
                 sendDebugLogToFlutter("✅ Browser Opened",
                     "Complete payment in browser. App should auto-open when done.");
             } catch (Exception e) {
+                isWaitingForBrowserResult = false;
                 sendDebugLogToFlutter("❌ Browser Error", "Failed to open browser: " + e.getMessage());
                 error("BROWSER_ERROR", "Failed to open browser: " + e.getMessage(), "");
             }
