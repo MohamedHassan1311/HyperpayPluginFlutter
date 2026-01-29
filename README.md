@@ -126,6 +126,23 @@ getCheckOut() async {
 If you want using `readyUI` send checkoutId and List of `brandsName` to Plugin
 
 Brands Names support [ VISA , MASTER , MADA , STC_PAY , APPLEPAY]
+
+#### Apple Pay Supported Networks (iOS)
+When using Apple Pay, you can specify which payment networks are supported using the `supportedNetworksApplePayIOS` parameter:
+
+| Network | Value |
+|---------|-------|
+| Visa | `"visa"` |
+| MasterCard | `"masterCard"` |
+| Mada | `"mada"` |
+| American Express | `"amex"` |
+| Maestro | `"maestro"` |
+| Discover | `"discover"` |
+| JCB | `"jcb"` |
+| China UnionPay | `"chinaUnionPay"` |
+
+Default: `["visa", "masterCard", "mada"]`
+
 ```
   payRequestNowReadyUI(
       {required List<String> brandsName, required String checkoutId}) async {
@@ -138,7 +155,8 @@ Brands Names support [ VISA , MASTER , MADA , STC_PAY , APPLEPAY]
             countryCodeApplePayIOS: InAppPaymentSetting.countryCode, // applePay
             companyNameApplePayIOS: "Test Co", // applePay
             themColorHexIOS: "#000000" ,// FOR IOS ONLY
-            setStorePaymentDetailsMode: true // store payment details for future use
+            setStorePaymentDetailsMode: true, // store payment details for future use
+            supportedNetworksApplePayIOS: ["visa", "masterCard", "mada"], // Apple Pay supported networks
             ),
       );
   }

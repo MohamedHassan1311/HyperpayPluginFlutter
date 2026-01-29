@@ -26,6 +26,7 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
     var setStorePaymentDetailsMode:String = "";
     var lang:String = "";
     var amount:Double = 1;
+    var supportedNetworks:[String] = [];
     var themColorHex:String = "";
     var companyName:String = "";
     var safariVC: SFSafariViewController?
@@ -68,6 +69,7 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                 self.companyName=(args!["companyName"] as? String)!
                 self.brandsReadyUi = (args!["brand"]) as! [String]
                 self.themColorHex=(args!["themColorHexIOS"] as? String)!
+                self.supportedNetworks = (args!["supportedNetworks"] as? [String]) ?? ["visa", "masterCard", "mada"]
 
                 self.setStorePaymentDetailsMode=(args!["setStorePaymentDetailsMode"] as? String )!
                 DispatchQueue.main.async {
@@ -129,15 +131,8 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                      let paymentRequest = OPPPaymentProvider.paymentRequest(withMerchantIdentifier: self.applePaybundel, countryCode: self.countryCode)
                      paymentRequest.paymentSummaryItems = [PKPaymentSummaryItem(label: self.companyName, amount: NSDecimalNumber(value: self.amount))]
 
-//                     if #available(iOS 12.1.1, *) {
-                         paymentRequest.supportedNetworks = [ PKPaymentNetwork.mada,PKPaymentNetwork.visa, PKPaymentNetwork.masterCard  ]
-//                     }
-//                     else {
-//                         // Fallback on earlier versions
-//                         paymentRequest.supportedNetworks = [ PKPaymentNetwork.visa, PKPaymentNetwork.masterCard ]
-//                     }
+                     paymentRequest.supportedNetworks = self.mapSupportedNetworks(self.supportedNetworks)
                      checkoutSettings.applePayPaymentRequest = paymentRequest
-                    // checkoutSettings.paymentBrands = ["APPLEPAY"]
              }
              checkoutSettings.language = self.lang
              // Set available payment brands for your shop
@@ -341,6 +336,28 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
          checkoutSettings.theme.cellHighlightedBackgroundColor = UIColor(hexString:hexColorString);
          checkoutSettings.theme.accentColor = UIColor(hexString:hexColorString);
      }
+
+    /// Maps string network names to PKPaymentNetwork values
+    func mapSupportedNetworks(_ networks: [String]) -> [PKPaymentNetwork] {
+        var result: [PKPaymentNetwork] = []
+        for network in networks {
+            switch network.lowercased() {
+            case "visa":
+                result.append(PKPaymentNetwork.visa)
+            case "mastercard":
+                result.append(PKPaymentNetwork.masterCard)
+            case "mada":
+                result.append(PKPaymentNetwork.mada)
+            case "maestro":
+                result.append(PKPaymentNetwork.maestro)
+            case "discover":
+                result.append(PKPaymentNetwork.discover)
+            default:
+                break
+            }
+        }
+        return result.isEmpty ? [PKPaymentNetwork.visa, PKPaymentNetwork.masterCard, PKPaymentNetwork.mada] : result
+    }
 
 
   public  func onThreeDSChallengeRequired(completion: @escaping (UINavigationController) -> Void) {

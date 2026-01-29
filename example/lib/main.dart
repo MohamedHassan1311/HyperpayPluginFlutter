@@ -188,7 +188,9 @@ class _MyHomePageState extends State<MyHomePage> {
             companyNameApplePayIOS: "Test Co",
             themColorHexIOS: "#000000", // FOR IOS ONLY
             setStorePaymentDetailsMode:
-                false // store payment details for future use
+                false, // store payment details for future use
+            /// Supported Networks for Apple Pay [ visa, masterCard, mada, amex, maestro, discover, jcb, chinaUnionPay ]
+            supportedNetworksApplePayIOS: ["visa", "masterCard", "mada"],
             ),
       );
 
@@ -231,7 +233,10 @@ class _MyHomePageState extends State<MyHomePage> {
         merchantIdApplePayIOS: InAppPaymentSetting.merchantId,
         countryCodeApplePayIOS: InAppPaymentSetting.countryCode,
         companyNameApplePayIOS: "Test Co",
-        themColorHexIOS: "#000000", brandsName: ["APPLEPAY"], // FOR IOS ONLY
+        themColorHexIOS: "#000000",
+        brandsName: ["APPLEPAY"],
+        /// Supported Networks for Apple Pay [ visa, masterCard, mada, amex, maestro, discover, jcb, chinaUnionPay ]
+        supportedNetworksApplePayIOS: ["visa", "masterCard", "mada"],
       ),
     );
 
