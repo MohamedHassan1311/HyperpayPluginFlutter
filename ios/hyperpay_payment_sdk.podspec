@@ -3,15 +3,16 @@
 # Run `pod lib lint payment.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'hyperpay_plugin'
-  s.version          = '0.0.4'
-  s.summary          = 'A new Flutter project.'
+  s.name             = 'hyperpay_payment_sdk'
+  s.version          = '1.0.0'
+  s.summary          = 'A Flutter plugin for seamless HyperPay payment gateway integration.'
   s.description      = <<-DESC
-A new Flutter project.
+A Flutter plugin for seamless HyperPay payment gateway integration.
+Supports ReadyUI & CustomUI, VISA, MasterCard, MADA, STC Pay, and Apple Pay on Android & iOS.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://github.com/MohamedHassan1311/HyperpayPluginFlutter'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'Mohamed Elbaz' => 'mohamedelbaz1311@gmail.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'

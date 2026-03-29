@@ -1,2 +1,9 @@
+## 1.1.0
+* Added Google Pay support on Android (`googlePayUI()`)
+* Added Samsung Pay support on Android (`samsungPayUI()`)
+* Added BIN lookup / card brand detection (`requestBrands()`)
+* Added structured error codes: `PaymentResultData.errorCode` field now populated from `PlatformException.code` on all payment flows
+* iOS returns `PLATFORM_NOT_SUPPORTED` error for Google Pay and Samsung Pay calls
+
 ## 1.0.0
 * update IOS SDK 6.14.0

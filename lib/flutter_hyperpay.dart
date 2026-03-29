@@ -2,11 +2,16 @@ import 'dart:async';
 
 import 'model/custom_ui.dart';
 import 'model/custom_ui_stc.dart';
+import 'model/google_pay_ui.dart';
 import 'model/ready_ui.dart';
+import 'model/samsung_pay_ui.dart';
 import 'model/stored_cards.dart';
+import 'src/brands/method_channel_brands.dart';
 import 'src/custom_ui/method_channel_custom_ui.dart';
 import 'src/custom_ui/method_channel_custom_ui_stc.dart';
+import 'src/google_pay/method_channel_google_pay.dart';
 import 'src/ready_ui/method_channel_ready_ui.dart';
+import 'src/samsung_pay/method_channel_samsung_pay.dart';
 import 'src/store_cards/method_channel_store_cards.dart';
 
 part 'hyper_pay_const.dart';
@@ -14,7 +19,7 @@ part 'hyper_pay_const.dart';
 part 'enum.dart';
 
 class FlutterHyperPay {
-  String channelName = "Hyperpay.demo.fultter/channel";
+  String channelName = "com.hyperpay.sdk/channel";
   String shopperResultUrl = "";
   String lang;
   PaymentMode paymentMode;
@@ -94,6 +99,72 @@ class FlutterHyperPay {
       cvv: storedCards.cvv,
       shopperResultUrl: shopperResultUrl,
       channelName: channelName,
+      paymentMode: paymentMode,
+      lang: lang,
+    );
+  }
+
+  /// Initiates a Google Pay payment on Android.
+  ///
+  /// Returns [PaymentResultData] with [PaymentResult.success] or [PaymentResult.sync]
+  /// on completion, [PaymentResult.noResult] if cancelled, and [PaymentResult.error]
+  /// if Google Pay is unavailable or the transaction fails.
+  ///
+  /// **Android only.** On iOS, returns [PaymentResult.error] with errorCode
+  /// "PLATFORM_NOT_SUPPORTED".
+  Future<PaymentResultData> googlePayUI(
+      {required GooglePayUI googlePayUI}) async {
+    return await implementGooglePayPayment(
+      checkoutId: googlePayUI.checkoutId,
+      googlePayMerchantId: googlePayUI.googlePayMerchantId,
+      gatewayMerchantId: googlePayUI.gatewayMerchantId,
+      countryCode: googlePayUI.countryCode,
+      currencyCode: googlePayUI.currencyCode,
+      amount: googlePayUI.amount,
+      allowedCardNetworks: googlePayUI.allowedCardNetworks,
+      allowedCardAuthMethods: googlePayUI.allowedCardAuthMethods,
+      channelName: channelName,
+      shopperResultUrl: shopperResultUrl,
+      paymentMode: paymentMode,
+      lang: lang,
+    );
+  }
+
+  /// Initiates a Samsung Pay payment on Android.
+  ///
+  /// Returns [PaymentResultData] with [PaymentResult.success] or [PaymentResult.sync]
+  /// on completion, [PaymentResult.noResult] if cancelled, and [PaymentResult.error]
+  /// if Samsung Pay is unavailable or the transaction fails.
+  ///
+  /// **Android only.** On iOS, returns [PaymentResult.error] with errorCode
+  /// "PLATFORM_NOT_SUPPORTED".
+  Future<PaymentResultData> samsungPayUI(
+      {required SamsungPayUI samsungPayUI}) async {
+    return await implementSamsungPayPayment(
+      checkoutId: samsungPayUI.checkoutId,
+      merchantName: samsungPayUI.merchantName,
+      serviceId: samsungPayUI.serviceId,
+      orderNumber: samsungPayUI.orderNumber,
+      amount: samsungPayUI.amount,
+      channelName: channelName,
+      shopperResultUrl: shopperResultUrl,
+      paymentMode: paymentMode,
+      lang: lang,
+    );
+  }
+
+  /// Requests card brand detection for a given checkout ID (BIN lookup).
+  ///
+  /// Returns a list of detected brand names (e.g. ["VISA"], ["MADA"]).
+  /// Returns an empty list if no brand is detected for the given prefix.
+  /// Does NOT require an active payment session.
+  ///
+  /// [checkoutId] is required by the HyperPay SDK for brand validation context.
+  Future<List<String>> requestBrands({required String checkoutId}) async {
+    return await implementRequestBrands(
+      checkoutId: checkoutId,
+      channelName: channelName,
+      shopperResultUrl: shopperResultUrl,
       paymentMode: paymentMode,
       lang: lang,
     );

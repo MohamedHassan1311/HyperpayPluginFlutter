@@ -13,6 +13,8 @@ class PaymentConst {
   static const String success = "success";
   static const String error = "error";
   static const String sync = "SYNC";
+  static const String googlePay = "GooglePayUI";
+  static const String samsungPay = "SamsungPayUI";
 }
 
 /// This class contains constants representing various payment brands,
@@ -24,16 +26,20 @@ class PaymentBrands {
   static const String stcPay = "STC_PAY";
   static const String masterCard = "MASTERCARD";
   static const String visa = "VISA";
+  static const String googlePay = "GOOGLEPAY";
+  static const String samsungPay = "SAMSUNG_PAY";
 }
 
 /// This class holds the data for a payment result,
 /// containing an errorString (nullable) and a paymentResult object.
 class PaymentResultData {
   String? errorString;
+  String? errorCode;
   PaymentResult paymentResult;
 
   PaymentResultData({
     required this.errorString,
+    this.errorCode,
     required this.paymentResult,
   });
 }

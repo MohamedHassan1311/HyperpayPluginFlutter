@@ -42,7 +42,7 @@ Future<PaymentResultData> implementPaymentStoredCards({
   } on PlatformException catch (e) {
     transactionStatus = "${e.message}";
     return PaymentResultData(
-        errorString: e.message, paymentResult: PaymentResult.error);
+        errorString: e.message, errorCode: e.code, paymentResult: PaymentResult.error);
   }
 }
 

@@ -44,7 +44,7 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
 
     }
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let flutterChannel:String = "Hyperpay.demo.fultter/channel";
+    let flutterChannel:String = "com.hyperpay.sdk/channel";
     let channel = FlutterMethodChannel(name: flutterChannel, binaryMessenger: registrar.messenger())
     let instance = SwiftPaymentPlugin()
     registrar.addApplicationDelegate(instance)
@@ -75,8 +75,7 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                 DispatchQueue.main.async {
                     self.openCheckoutUI(checkoutId: self.checkoutid, result1: result)
                 }
-            } else if self.type  == "CustomUI"{
-
+            } else if self.type == "CustomUI" {
                  self.brands = (args!["brand"] as? String)!
                  self.number = (args!["card_number"] as? String)!
                  self.holder = (args!["holder_name"] as? String)!
@@ -85,8 +84,16 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
                  self.cvv = (args!["cvv"] as? String)!
                  self.setStorePaymentDetailsMode = (args!["EnabledTokenization"] as? String)!
                  self.openCustomUI(checkoutId: self.checkoutid, result1: result)
-            }
-            else {
+            } else if self.type == "CustomUISTC" {
+                 self.STCPAY = (args!["phone_number"] as? String)!
+                 DispatchQueue.main.async {
+                     self.openCustomUISTC(checkoutId: self.checkoutid, result1: result)
+                 }
+            } else if self.type == "GooglePayUI" {
+                result(FlutterError(code: "PLATFORM_NOT_SUPPORTED", message: "Google Pay is not supported on iOS", details: nil))
+            } else if self.type == "SamsungPayUI" {
+                result(FlutterError(code: "PLATFORM_NOT_SUPPORTED", message: "Samsung Pay is not supported on iOS", details: nil))
+            }  else {
                 result(FlutterError(code: "1", message: "Method name is not found", details: ""))
                     }
 
@@ -259,6 +266,66 @@ public class SwiftPaymentPlugin: NSObject,FlutterPlugin ,SFSafariViewControllerD
             }
     }
 
+    private func openCustomUISTC(checkoutId: String, result1: @escaping FlutterResult) {
+        if self.mode == "live" {
+            self.provider = OPPPaymentProvider(mode: .live)
+        } else {
+            self.provider = OPPPaymentProvider(mode: .test)
+        }
+
+        self.provider.threeDSEventListener = self
+
+        do {
+            // STC Pay uses the base OPPPaymentParams with brand "STC_PAY".
+            // The phone number is associated server-side when the checkout ID is created.
+            let params = try OPPPaymentParams(checkoutID: checkoutId, paymentBrand: "STC_PAY")
+            params.shopperResultURL = self.shopperResultURL + "://result"
+
+            self.transaction = OPPTransaction(paymentParams: params)
+
+            self.provider.submitTransaction(self.transaction!) { (transaction, error) in
+                guard let transaction = self.transaction else {
+                    result1(FlutterError(code: "STC_ERROR",
+                                        message: error?.localizedDescription ?? "Transaction failed",
+                                        details: nil))
+                    return
+                }
+
+                if transaction.type == .asynchronous {
+                    // Register for the URL-scheme callback that fires after the user
+                    // completes OTP verification in the browser.
+                    NotificationCenter.default.addObserver(
+                        self,
+                        selector: #selector(self.didReceiveAsynchronousPaymentCallback),
+                        name: Notification.Name("AsyncPaymentCompletedNotificationKey"),
+                        object: nil
+                    )
+
+                    guard let redirectURL = self.transaction?.redirectURL else {
+                        result1(FlutterError(code: "STC_ERROR", message: "Missing redirect URL", details: nil))
+                        return
+                    }
+
+                    self.safariVC = SFSafariViewController(url: redirectURL)
+                    self.safariVC?.delegate = self
+
+                    DispatchQueue.main.async {
+                        UIApplication.shared.windows.first?.rootViewController?
+                            .present(self.safariVC!, animated: true)
+                    }
+
+                } else if transaction.type == .synchronous {
+                    result1("success")
+
+                } else {
+                    result1(FlutterError(code: "STC_ERROR", message: "Transaction failed", details: nil))
+                }
+            }
+
+        } catch {
+            result1(FlutterError(code: "STC_ERROR", message: error.localizedDescription, details: nil))
+        }
+    }
        @objc func didReceiveAsynchronousPaymentCallback(result: @escaping FlutterResult) {
            NotificationCenter.default.removeObserver(self, name: Notification.Name(rawValue: "AsyncPaymentCompletedNotificationKey"), object: nil)
            if self.type == "ReadyUI" || self.type=="APPLEPAY"||self.type=="StoredCards"{

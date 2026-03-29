@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:example/formatters.dart';
 
 import 'package:example/enums/brand_type.dart';
-import 'package:hyperpay_plugin/flutter_hyperpay.dart';
-import 'package:hyperpay_plugin/model/custom_ui.dart';
+import 'package:hyperpay_payment_sdk/flutter_hyperpay.dart';
+import 'package:hyperpay_payment_sdk/model/custom_ui.dart';
 
 import 'main.dart';
 import 'models/card_info.dart';
