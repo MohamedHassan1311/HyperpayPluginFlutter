@@ -33,9 +33,9 @@ class PaymentBrands {
 /// This class holds the data for a payment result,
 /// containing an errorString (nullable) and a paymentResult object.
 class PaymentResultData {
-  String? errorString;
-  String? errorCode;
-  PaymentResult paymentResult;
+  final String? errorString;
+  final String? errorCode;
+  final PaymentResult paymentResult;
 
   PaymentResultData({
     required this.errorString,

@@ -19,10 +19,17 @@ part 'hyper_pay_const.dart';
 part 'enum.dart';
 
 class FlutterHyperPay {
-  String channelName = "com.hyperpay.sdk/channel";
-  String shopperResultUrl = "";
-  String lang;
-  PaymentMode paymentMode;
+  /// The name of the platform channel used for communication with native code.
+  final String channelName = "com.hyperpay.sdk/channel";
+
+  /// The URL used by the payment gateway to redirect the user back to the app after a payment.
+  final String shopperResultUrl;
+
+  /// The language used for the payment interface (e.g., "en", "ar").
+  final String lang;
+
+  /// The payment mode to be used: [PaymentMode.test] or [PaymentMode.live].
+  final PaymentMode paymentMode;
 
   FlutterHyperPay({
     required this.shopperResultUrl,

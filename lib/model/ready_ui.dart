@@ -5,30 +5,32 @@ import '../flutter_hyperpay.dart';
 /// Also, we can provide brandName and themColorHexIOS as optional values.
 /// setStorePaymentDetailsMode is set to false by default.
 class ReadyUI {
-  /// initializes a variable named paymentType with the value PaymentConst.customUi.
-  String paymentType = PaymentConst.readyUi;
+  /// The payment type, defaults to PaymentConst.readyUi.
+  final String paymentType = PaymentConst.readyUi;
 
-  /// declares a string variable named checkoutId without assigning it an initial value.
-  String checkoutId;
-  bool setStorePaymentDetailsMode;
+  /// The HyperPay checkout ID.
+  final String checkoutId;
 
-  ///  brandName variable could be used to store the name of the brand or company
-  List<String> brandsName;
+  /// Whether to enable tokenization to store payment details.
+  final bool setStorePaymentDetailsMode;
 
-  /// merchantId is a unique identifier associated with your Apple Developer account and is used to enable Apple Pay in your iOS app.
-  String merchantIdApplePayIOS;
+  /// List of brands to be shown in the ReadyUI (e.g., ["VISA", "MASTERCARD"]).
+  final List<String> brandsName;
 
-  ///  countryCode typically refers to the two-letter country code associated with the region or country where your business or app is based. It is used as part of the configuration for Apple Pay.
-  String countryCodeApplePayIOS;
+  /// Apple Pay Merchant ID (iOS only).
+  final String merchantIdApplePayIOS;
 
-  /// companyName typically refers to the legal name of your business or organization that is associated with your Apple Pay configuration. This information is used when setting up your Merchant ID for Apple Pay.
-  String companyNameApplePayIOS = "";
+  /// Apple Pay Country Code (iOS only).
+  final String countryCodeApplePayIOS;
 
-  /// themColorHexIOS is likely intended to represent the hexadecimal color code for the theme color you want to use in your iOS app. The term may contain a typo; it's more commonly referred to as themeColorHexIOS.
-  String themColorHexIOS;
+  /// Apple Pay Company Name (iOS only).
+  final String companyNameApplePayIOS;
 
-  /// supportedNetworksApplePayIOS specifies the payment networks supported by Apple Pay (e.g., "visa", "masterCard", "mada", "amex").
-  List<String> supportedNetworksApplePayIOS;
+  /// Hexadecimal color code for the iOS ReadyUI theme.
+  final String themColorHexIOS;
+
+  /// Supported networks for Apple Pay on iOS.
+  final List<String> supportedNetworksApplePayIOS;
 
   ReadyUI({
     required this.checkoutId,

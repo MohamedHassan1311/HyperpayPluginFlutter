@@ -4,32 +4,32 @@ import '../flutter_hyperpay.dart';
 /// customUi payment type. It has parameters to define the checkoutId, brandName,
 /// cardNumber, holderName, month, year, cvv and enabledTokenization (optional).
 class CustomUI {
-  /// initializes a variable named paymentType with the value PaymentConst.customUi.
-  String paymentType = PaymentConst.customUi;
+  /// The payment type, defaults to PaymentConst.customUi.
+  final String paymentType = PaymentConst.readyUi;
 
-  /// declares a string variable named checkoutId without assigning it an initial value.
-  String checkoutId;
+  /// The HyperPay checkout ID.
+  final String checkoutId;
 
-  ///  brandName variable could be used to store the name of the brand or company
-  String brandName;
+  /// The name of the brand (e.g., "VISA", "MASTERCARD").
+  final String brandName;
 
-  /// cardNumber variable would typically hold the numerical sequence that uniquely identifies a payment card
-  String cardNumber;
+  /// The credit or debit card number.
+  final String cardNumber;
 
-  /// holderName variable would typically hold the name of the individual or entity that owns or is authorized to use the payment card
-  String holderName;
+  /// The name of the cardholder as it appears on the card.
+  final String holderName;
 
-  /// the month variable could be used to represent the expiration month of a credit or debit card
-  String month;
+  /// The expiration month of the card (e.g., "12").
+  final String month;
 
-  /// the year variable could be used to represent the expiration year of a credit or debit card
-  String year;
+  /// The expiration year of the card (e.g., "2025").
+  final String year;
 
-  /// the cvv variable holds the three- or four-digit security code printed on the back (for Visa, Mastercard, and Discover)
-  String cvv;
+  /// The 3 or 4-digit CVV/CVC security code.
+  final String cvv;
 
-  /// typically refers to a boolean variable or a configuration option that determines whether tokenization is enabled or disabled in a payment processing system or application.
-  bool enabledTokenization;
+  /// Whether to enable tokenization for this transaction.
+  final bool enabledTokenization;
 
   CustomUI({
     required this.checkoutId,
