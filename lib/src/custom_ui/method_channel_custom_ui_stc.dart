@@ -35,10 +35,10 @@ Future<PaymentResultData> implementPaymentCustomUISTC({
   }
 }
 
-/// This method creates a map of parameters to be used for a custom UI STC (STC Pay) payment.
-/// It requires the payment mode, phone number, checkout ID, language,
-/// and shopper result URL as parameters. It returns a map containing data for the payment type,
-/// mode, checkout id, phone number, language, and shopper result URL.
+/// Builds the method-channel argument map for an STC Pay payment.
+///
+/// Returns a [Map] whose keys match the parameter names expected by the
+/// native HyperPay SDK plugin on both Android and iOS.
 Map<String, String?> getCustomUiSTCModelCards({
   required PaymentMode paymentMode,
   required String phoneNumber,

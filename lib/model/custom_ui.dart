@@ -31,6 +31,10 @@ class CustomUI {
   /// Whether to enable tokenization for this transaction.
   final bool enabledTokenization;
 
+  /// Creates a [CustomUI] payment request.
+  ///
+  /// All card fields are required. [enabledTokenization] defaults to `false`;
+  /// set it to `true` to store the card for future payments.
   CustomUI({
     required this.checkoutId,
     required this.brandName,

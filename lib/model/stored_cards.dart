@@ -19,6 +19,10 @@ class StoredCards {
   /// The 3 or 4-digit CVV code for the stored card.
   final String cvv;
 
+  /// Creates a [StoredCards] payment request.
+  ///
+  /// [tokenId] is the token returned by a previous HyperPay transaction when
+  /// tokenization was enabled. [cvv] is always required for security.
   StoredCards({
     required this.checkoutId,
     required this.tokenId,

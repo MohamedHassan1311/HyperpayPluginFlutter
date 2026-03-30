@@ -12,6 +12,9 @@ class CustomUISTC {
   /// The shopper's phone number for STC Pay verification.
   final String phoneNumber;
 
+  /// Creates a [CustomUISTC] payment request.
+  ///
+  /// [phoneNumber] must be the shopper's registered STC Pay mobile number.
   CustomUISTC({
     required this.checkoutId,
     required this.phoneNumber,

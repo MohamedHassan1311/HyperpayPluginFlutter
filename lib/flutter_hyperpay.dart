@@ -18,6 +18,19 @@ part 'hyper_pay_const.dart';
 
 part 'enum.dart';
 
+/// Main entry point for the HyperPay Payment SDK.
+///
+/// Create one instance per screen/session and call the appropriate method
+/// depending on the payment flow you want to use (Ready UI, Custom UI,
+/// Google Pay, Samsung Pay, Apple Pay, or stored cards).
+///
+/// ```dart
+/// final hyperPay = FlutterHyperPay(
+///   shopperResultUrl: 'com.example.app',
+///   paymentMode: PaymentMode.test,
+///   lang: 'en',
+/// );
+/// ```
 class FlutterHyperPay {
   /// The name of the platform channel used for communication with native code.
   final String channelName = "com.hyperpay.sdk/channel";
@@ -31,6 +44,12 @@ class FlutterHyperPay {
   /// The payment mode to be used: [PaymentMode.test] or [PaymentMode.live].
   final PaymentMode paymentMode;
 
+  /// Creates a [FlutterHyperPay] instance.
+  ///
+  /// [shopperResultUrl] must match the custom URL scheme registered in your
+  /// app's manifest/Info.plist so the SDK can redirect back after payment.
+  /// [paymentMode] controls whether test or live credentials are used.
+  /// [lang] sets the UI language — use [PaymentLang] constants for valid values.
   FlutterHyperPay({
     required this.shopperResultUrl,
     required this.paymentMode,

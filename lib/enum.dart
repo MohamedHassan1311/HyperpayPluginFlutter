@@ -1,7 +1,25 @@
 part of 'flutter_hyperpay.dart';
 
-/// This enum is used to store the result of a Payment operation. It can be either 'sync', 'success', 'error' or 'noResult'.
-enum PaymentResult { sync, success, error, noResult }
+/// The result state of a completed HyperPay payment operation.
+enum PaymentResult {
+  /// Transaction is pending server confirmation (asynchronous processing).
+  sync,
 
-/// PaymentMode is an enumeration which can take on the values of either 'live' or 'test' and is used to indicate which payment mode is used.
-enum PaymentMode { live, test }
+  /// Transaction was approved and completed successfully.
+  success,
+
+  /// Transaction failed; inspect [PaymentResultData.errorCode] for details.
+  error,
+
+  /// The user cancelled the payment or no result was returned by the SDK.
+  noResult,
+}
+
+/// Controls whether the SDK communicates with the HyperPay test or live environment.
+enum PaymentMode {
+  /// Live (production) environment — uses real payment credentials.
+  live,
+
+  /// Test environment — uses sandbox credentials; no real charges are made.
+  test,
+}

@@ -51,11 +51,10 @@ Future<PaymentResultData> implementPaymentCustomUI({
   }
 }
 
-/// This function is used to get the required customUi model cards for payment processing.
-/// It takes all the essential information needed for the process,
-/// like payment mode, brand, checkoutId, shopperResultUrl, lang, cardNumber,
-/// holderName, month, year, cvv, and enabledTokenization.
-/// It then generates and returns a map containing each of the data fields.
+/// Builds the method-channel argument map for a Custom UI card payment.
+///
+/// Returns a [Map] whose keys match the parameter names expected by the
+/// native HyperPay SDK plugin on both Android and iOS.
 Map<String, String?> getCustomUiModelCards({
   required PaymentMode paymentMode,
   required String brand,

@@ -32,6 +32,10 @@ class ReadyUI {
   /// Supported networks for Apple Pay on iOS.
   final List<String> supportedNetworksApplePayIOS;
 
+  /// Creates a [ReadyUI] configuration.
+  ///
+  /// [checkoutId] and [brandsName] are required. Apple Pay fields are only
+  /// used on iOS and can be omitted on Android.
   ReadyUI({
     required this.checkoutId,
     required this.brandsName,
