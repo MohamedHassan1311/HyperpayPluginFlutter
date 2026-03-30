@@ -1,6 +1,6 @@
 name: hyperpay_payment_sdk
 description: A Flutter plugin for seamless HyperPay payment gateway integration. Supports ReadyUI & CustomUI, VISA, MasterCard, MADA, STC Pay, and Apple Pay on Android & iOS.
-version: 1.1.2
+version: 1.1.3
 repository: https://github.com/MohamedHassan1311/HyperpayPluginFlutter
 
 

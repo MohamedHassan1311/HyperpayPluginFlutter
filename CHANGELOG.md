@@ -1,3 +1,7 @@
+## 1.1.2
+* Refactored example app to MVVM architecture (ViewModels, PaymentRepository, AppConstants)
+* Improved code structure and separation of concerns in the example
+
 ## 1.1.1
 * Added Google Pay support on Android (`googlePayUI()`)
 * Added Samsung Pay support on Android (`samsungPayUI()`)
