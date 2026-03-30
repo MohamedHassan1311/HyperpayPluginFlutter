@@ -1,16 +1,9 @@
-import 'dart:developer';
 import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/material.dart';
-import 'package:hyperpay_plugin/flutter_hyperpay.dart';
-import 'dart:convert';
 
-import 'package:hyperpay_plugin/model/custom_ui.dart';
-import 'package:hyperpay_plugin/model/custom_ui_stc.dart';
-import 'package:hyperpay_plugin/model/ready_ui.dart';
+import 'package:flutter/material.dart';
 
 import 'checkout_view.dart';
-import 'network/network.dart';
+import 'view_models/home_view_model.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,243 +15,240 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'HyperPay Demo',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const MyHomePage(),
     );
   }
 }
 
+// ── Home View ──────────────────────────────────────────────────────────────────
+
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late FlutterHyperPay flutterHyperPay;
+  late final HomeViewModel _viewModel;
+
   @override
   void initState() {
-
-    flutterHyperPay = FlutterHyperPay(
-      shopperResultUrl: InAppPaymentSetting.shopperResultUrl,
-      paymentMode: PaymentMode.test,
-      lang: InAppPaymentSetting.getLang(),
-    );
-
     super.initState();
+    _viewModel = HomeViewModel();
+    _viewModel.addListener(_onViewModelChanged);
   }
 
-  String? _resultText;
-  String? _checkoutid;
+  void _onViewModelChanged() => setState(() {});
+
+  @override
+  void dispose() {
+    _viewModel.removeListener(_onViewModelChanged);
+    _viewModel.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Payment"),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _resultText ?? "",
-              style: const TextStyle(fontSize: 20, color: Colors.black),
-            ),
-            SizedBox(
-              height: 50,
-            ),
-            Text(
-              "pay with ready ui".toUpperCase(),
-              style: const TextStyle(fontSize: 20, color: Colors.black),
-            ),
-            InkWell(
-                onTap: () async {
-                  _checkoutid = await Network.getCheckOut();
-                  if (_checkoutid != null) {
-                    /// Brands Names [ VISA , MASTER , MADA , STC_PAY , APPLEPAY]
-                    payRequestNowReadyUI(brandsName: [
-                      "VISA",
-                      "MASTER",
-                      "MADA",
-                      "PAYPAL",
-                      "STC_PAY",
-                      "APPLEPAY"
-                    ], checkoutId: _checkoutid!);
-                  }
-                },
-                child: const Text(
-                  "[VISA,MASTER,MADA,STC_PAY,APPLEPAY]",
-                  style: TextStyle(fontSize: 20),
-                )),
-            const Divider(),
-            Text(
-              "pay with custom ui".toUpperCase(),
-              style: const TextStyle(fontSize: 20, color: Colors.black),
-            ),
-            InkWell(
-                onTap: () async {
-                  Navigator.push(
+      appBar: AppBar(title: const Text('HyperPay Demo')),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _ResultBanner(message: _viewModel.resultMessage),
+
+                // ── Ready UI ─────────────────────────────────────────────
+                _SectionTitle('Ready UI'),
+                _PayButton(
+                  label: 'Pay [VISA, MASTER, MADA, STC_PAY, APPLEPAY]',
+                  onTap: _viewModel.payReadyUI,
+                ),
+
+                // ── Custom UI ────────────────────────────────────────────
+                _SectionTitle('Custom UI'),
+                _PayButton(
+                  label: 'Pay with Card Form',
+                  onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute<void>(
-                      builder: (BuildContext context) => const CheckoutView(),
-                    ),
-                  );
-                },
-                child: const Text(
-                  "CUSTOM_UI",
-                  style: TextStyle(fontSize: 20),
-                )),
-            const Divider(),
-            Text(
-              "pay with custom ui stc".toUpperCase(),
-              style: const TextStyle(fontSize: 20, color: Colors.red),
-            ),
-            InkWell(
-                onTap: () async {
-                  _checkoutid = await Network.getCheckOut();
-                  if (_checkoutid != null) {
-                    payRequestNowCustomUiSTCPAY(
-                        checkoutId: _checkoutid!, phoneNumber: "5055555555");
-                  }
-                },
-                child: const Text(
-                  "STC_PAY",
-                  style: TextStyle(fontSize: 20),
-                )),
-            if (Platform.isIOS)
-              GestureDetector(
-                onTap: () async {
-                  _checkoutid = await Network.getCheckOut();
-                  payWithApplePAY(checkoutId: _checkoutid!);
-                },
-                child: Container(
-                  width: 250,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.black, // Apple Pay button is usually black
-                    borderRadius: BorderRadius.circular(8), // Rounded corners
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons
-                            .apple, // Apple icon (you can use custom SVG for better accuracy)
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        'Pay with Apple Pay',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                    MaterialPageRoute(builder: (_) => const CheckoutView()),
                   ),
                 ),
-              )
+
+                // ── STC Pay ──────────────────────────────────────────────
+                _SectionTitle('STC Pay'),
+                _PayButton(
+                  label: 'Pay with STC Pay',
+                  color: Colors.red.shade600,
+                  onTap: _viewModel.paySTCPay,
+                ),
+
+                // ── Google Pay (Android only) ─────────────────────────────
+                if (Platform.isAndroid) ...[
+                  _SectionTitle('Google Pay (Android)'),
+                  _PayButton(
+                    label: 'Pay with Google Pay',
+                    color: Colors.green.shade700,
+                    onTap: _viewModel.payGooglePay,
+                  ),
+                ],
+
+                // ── Samsung Pay (Android only) ────────────────────────────
+                if (Platform.isAndroid) ...[
+                  _SectionTitle('Samsung Pay (Android)'),
+                  _PayButton(
+                    label: 'Pay with Samsung Pay',
+                    color: Colors.indigo.shade700,
+                    onTap: _viewModel.paySamsungPay,
+                  ),
+                ],
+
+                // ── BIN Lookup ────────────────────────────────────────────
+                _SectionTitle('BIN Lookup / Card Brand Detection'),
+                _PayButton(
+                  label: 'Detect Card Brand',
+                  color: Colors.orange.shade700,
+                  onTap: _viewModel.lookupBrands,
+                ),
+
+                // ── Apple Pay (iOS only) ──────────────────────────────────
+                if (Platform.isIOS) ...[
+                  _SectionTitle('Apple Pay (iOS)'),
+                  _ApplePayButton(onTap: _viewModel.payApplePay),
+                ],
+
+                const SizedBox(height: 32),
+              ],
+            ),
+          ),
+          if (_viewModel.isLoading) const _LoadingOverlay(),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Reusable widgets ───────────────────────────────────────────────────────────
+
+class _ResultBanner extends StatelessWidget {
+  const _ResultBanner({this.message});
+  final String? message;
+
+  @override
+  Widget build(BuildContext context) {
+    if (message == null) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Text(
+        message!,
+        style: const TextStyle(fontSize: 15),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.title);
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20, bottom: 6),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey.shade600,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+}
+
+class _PayButton extends StatelessWidget {
+  const _PayButton({
+    required this.label,
+    required this.onTap,
+    this.color,
+  });
+
+  final String label;
+  final VoidCallback onTap;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color ?? Colors.blue.shade700,
+        foregroundColor: Colors.white,
+        minimumSize: const Size.fromHeight(48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      child: Text(label, style: const TextStyle(fontSize: 15)),
+    );
+  }
+}
+
+class _ApplePayButton extends StatelessWidget {
+  const _ApplePayButton({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 52,
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.apple, color: Colors.white, size: 24),
+            SizedBox(width: 8),
+            Text(
+              'Pay with Apple Pay',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
-
-  /// URL TO GET CHECKOUT ID FOR TEST
-  /// http://dev.hyperpay.com/hyperpay-demo/getcheckoutid.php
-
-  payRequestNowReadyUI(
-      {required List<String> brandsName, required String checkoutId}) async {
-    PaymentResultData paymentResultData;
-    try {
-      paymentResultData = await flutterHyperPay.readyUICards(
-        readyUI: ReadyUI(
-            brandsName: brandsName,
-            checkoutId: checkoutId,
-            merchantIdApplePayIOS: InAppPaymentSetting.merchantId,
-            countryCodeApplePayIOS: InAppPaymentSetting.countryCode,
-            companyNameApplePayIOS: "Test Co",
-            themColorHexIOS: "#000000", // FOR IOS ONLY
-            setStorePaymentDetailsMode:
-                false, // store payment details for future use
-            /// Supported Networks for Apple Pay [ visa, masterCard, mada, amex, maestro, discover, jcb, chinaUnionPay ]
-            supportedNetworksApplePayIOS: ["visa", "masterCard", "mada"],
-            ),
-      );
-
-      print('Payment Result: ${paymentResultData.paymentResult}');
-      if (paymentResultData.paymentResult == PaymentResult.success ||
-          paymentResultData.paymentResult == PaymentResult.sync) {
-        Network.getpaymentstatus(_checkoutid);
-      } else {
-        print('Payment failed or cancelled: ${paymentResultData.paymentResult}');
-      }
-    } catch (e) {
-      print('Payment Error: $e');
-    }
-  }
-
-  payRequestNowCustomUiSTCPAY(
-      {required String phoneNumber, required String checkoutId}) async {
-    PaymentResultData paymentResultData;
-
-    paymentResultData = await flutterHyperPay.customUISTC(
-      customUISTC:
-          CustomUISTC(checkoutId: checkoutId, phoneNumber: phoneNumber),
-    );
-
-    if (paymentResultData.paymentResult == PaymentResult.success ||
-        paymentResultData.paymentResult == PaymentResult.sync) {
-      Network.getpaymentstatus(_checkoutid);
-      // do something
-    } else {
-      Network.getpaymentstatus(_checkoutid);
-    }
-  }
-
-  payWithApplePAY({required String checkoutId}) async {
-    PaymentResultData paymentResultData;
-
-    paymentResultData = await flutterHyperPay.readyUICards(
-      readyUI: ReadyUI(
-        checkoutId: checkoutId,
-        merchantIdApplePayIOS: InAppPaymentSetting.merchantId,
-        countryCodeApplePayIOS: InAppPaymentSetting.countryCode,
-        companyNameApplePayIOS: "Test Co",
-        themColorHexIOS: "#000000",
-        brandsName: ["APPLEPAY"],
-        /// Supported Networks for Apple Pay [ visa, masterCard, mada, amex, maestro, discover, jcb, chinaUnionPay ]
-        supportedNetworksApplePayIOS: ["visa", "masterCard", "mada"],
-      ),
-    );
-
-    if (paymentResultData.paymentResult == PaymentResult.success ||
-        paymentResultData.paymentResult == PaymentResult.sync) {
-      Network.getpaymentstatus(_checkoutid);
-      // do something
-    } else {
-      Network.getpaymentstatus(_checkoutid);
-    }
-  }
 }
 
-class InAppPaymentSetting {
-  static const String shopperResultUrl = "com.testpayment.payment";
-  static const String merchantId = "marchant.com.example.hyperpay";
-  static const String countryCode = "SA";
-  static getLang() {
-    if (Platform.isIOS) {
-      return "en"; // ar
-    } else {
-      return "en_US"; // ar_AR
-    }
+class _LoadingOverlay extends StatelessWidget {
+  const _LoadingOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ColoredBox(
+      color: Color(0x55000000),
+      child: Center(child: CircularProgressIndicator()),
+    );
   }
 }

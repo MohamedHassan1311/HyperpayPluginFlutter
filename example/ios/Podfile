@@ -38,7 +38,7 @@ pod 'hyperpay_sdk',
     :git => 'https://github.com/MohamedHassan1311/hyperpaysdkIOS.git',
     :branch => 'staging'
 
-$static_framework = ['hyperpay_plugin']
+$static_framework = ['hyperpay_payment_sdk']
 
 pre_install do |installer|
   Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}

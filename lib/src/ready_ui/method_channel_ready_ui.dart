@@ -44,15 +44,14 @@ Future<PaymentResultData> implementPayment(
   } on PlatformException catch (e) {
     transactionStatus = "${e.message}";
     return PaymentResultData(
-        errorString: e.message, paymentResult: PaymentResult.error);
+        errorString: e.message, errorCode: e.code, paymentResult: PaymentResult.error);
   }
 }
 
-/// This function retrieves the necessary attributes to create a ready-to-use model card.
-/// It takes in the required parameters of brand, checkoutId, shopperResultUrl, lang,
-/// paymentMode, and setStorePaymentDetailsMode. An optional parameter, themColorHexIOS,
-/// can also be provided. The function returns a Map with the corresponding values of type, mode,
-/// checkoutid, brand, lang, themColorHexIOS, ShopperResultUrl, and setStorePaymentDetailsMode.
+/// Builds the method-channel argument map for a Ready UI payment.
+///
+/// Returns a [Map] whose keys match the parameter names expected by the
+/// native HyperPay SDK plugin on both Android and iOS.
 Map<String, dynamic> getReadyModelCards(
     {required List<String> brands,
       required String checkoutId,

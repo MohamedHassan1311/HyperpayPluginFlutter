@@ -42,14 +42,14 @@ Future<PaymentResultData> implementPaymentStoredCards({
   } on PlatformException catch (e) {
     transactionStatus = "${e.message}";
     return PaymentResultData(
-        errorString: e.message, paymentResult: PaymentResult.error);
+        errorString: e.message, errorCode: e.code, paymentResult: PaymentResult.error);
   }
 }
 
-/// This function is used to get payment with cards with the required parameters.
-/// It takes in an required brand, checkoutId, tokenId, cvv, channelName, shopperResultUrl,
-/// paymentMode and lang and returns a map containing the type, mode, checkoutid,
-/// brand, lang, ShopperResultUrl, TokenID and cvv.
+/// Builds the method-channel argument map for a stored-card payment.
+///
+/// Returns a [Map] whose keys match the parameter names expected by the
+/// native HyperPay SDK plugin on both Android and iOS.
 Map<String, String?> getPaymentWithCards({
   required String? brand,
   required String checkoutId,

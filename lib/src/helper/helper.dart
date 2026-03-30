@@ -1,9 +1,12 @@
 import '../../flutter_hyperpay.dart';
 
-/// PaymentResultManger is a class used to generate a PaymentResultData
-/// object based on the paymentResult passed. It will return the respective paymentResult
-/// with the errorString depending on the paymentResult passed.
+/// Maps raw native SDK result strings to typed [PaymentResultData] objects.
 class PaymentResultManger {
+  /// Converts the raw [paymentResult] string returned by the native channel
+  /// into a [PaymentResultData].
+  ///
+  /// Returns [PaymentResult.success] for `"success"`, [PaymentResult.sync]
+  /// for `"SYNC"`, and [PaymentResult.noResult] for any other value.
   static PaymentResultData getPaymentResult(String paymentResult) {
     if (paymentResult == PaymentConst.success) {
       return PaymentResultData(

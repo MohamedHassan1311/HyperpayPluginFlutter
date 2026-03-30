@@ -2,10 +2,20 @@ package com.excprotection.payment;
 
 import com.oppwa.mobile.connect.payment.PaymentParams;
 import com.oppwa.mobile.connect.payment.card.CardPaymentParams;
+import com.oppwa.mobile.connect.checkout.dialog.GooglePayHelper;
+import com.oppwa.mobile.connect.payment.googlepay.GooglePayPaymentParams;
+import com.oppwa.mobile.connect.payment.samsungpay.SamsungPayPaymentParams;
 import com.oppwa.mobile.connect.payment.stcpay.STCPayPaymentParams;
 import com.oppwa.mobile.connect.payment.stcpay.STCPayVerificationOption;
 import com.oppwa.mobile.connect.provider.ITransactionListener;
 import com.oppwa.mobile.connect.provider.OppPaymentProvider;
+import com.google.android.gms.wallet.AutoResolveHelper;
+import com.google.android.gms.wallet.PaymentData;
+import com.google.android.gms.wallet.PaymentDataRequest;
+import com.google.android.gms.wallet.PaymentsClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import androidx.annotation.NonNull;
 import androidx.activity.result.ActivityResultLauncher;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -64,10 +74,27 @@ public class PaymentPlugin implements
     private ActivityResultLauncher<CheckoutSettings> checkoutLauncher;
     private boolean isWaitingForBrowserResult = false;
 
+    // Google Pay fields
+    private String googlePayMerchantId = "";
+    private String gatewayMerchantId = "";
+    private String countryCode = "";
+    private String currencyCode = "";
+    private String amount = "";
+    private List<String> allowedCardNetworks;
+    private List<String> allowedCardAuthMethods;
+    private String googlePayCheckoutId = "";
+
+    // Samsung Pay fields
+    private String merchantName = "";
+    private String serviceId = "";
+    private String orderNumber = "";
+    private String samsungPayCheckoutId = "";
+    private String samsungPayAmount = "";
+
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     private MethodChannel channel;
-    String CHANNEL = "Hyperpay.demo.fultter/channel";
+    String CHANNEL = "com.hyperpay.sdk/channel";
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -115,6 +142,31 @@ public class PaymentPlugin implements
                 case "CustomUISTC":
                     number = call.argument("phone_number");
                     openCustomUISTC(checkoutId);
+                    break;
+                case "GooglePayUI":
+                    googlePayCheckoutId = checkoutId;
+                    googlePayMerchantId = call.argument("googlePayMerchantId");
+                    gatewayMerchantId = call.argument("gatewayMerchantId");
+                    countryCode = call.argument("countryCode");
+                    currencyCode = call.argument("currencyCode");
+                    amount = call.argument("amount");
+                    allowedCardNetworks = call.argument("allowedCardNetworks");
+                    allowedCardAuthMethods = call.argument("allowedCardAuthMethods");
+                    openGooglePayUI();
+                    break;
+                case "SamsungPayUI":
+                    samsungPayCheckoutId = checkoutId;
+                    merchantName = call.argument("merchantName");
+                    serviceId = call.argument("serviceId");
+                    orderNumber = call.argument("orderNumber");
+                    samsungPayAmount = call.argument("amount");
+                    openSamsungPayUI();
+                    break;
+                case "RequestBrands":
+                    Connect.ProviderMode brandsProviderMode = (mode != null && mode.equals("live")) ?
+                        Connect.ProviderMode.LIVE : Connect.ProviderMode.TEST;
+                    paymentProvider = new OppPaymentProvider(context, brandsProviderMode);
+                    paymentProvider.requestBrandsValidation(checkoutId, new String[]{}, this);
                     break;
                 default:
                     error("1", "THIS TYPE NO IMPLEMENT" + type, "");
@@ -353,10 +405,194 @@ public class PaymentPlugin implements
         }
     }
 
+    private void openGooglePayUI() {
+        Connect.ProviderMode providerMode = (mode != null && mode.equals("live")) ?
+            Connect.ProviderMode.LIVE : Connect.ProviderMode.TEST;
+
+        try {
+            String paymentRequestJson = buildGooglePayRequest().toString();
+            GooglePayHelper.isReadyToPayWithGoogle(activity, providerMode, paymentRequestJson, task -> {
+                if (task.isSuccessful() && Boolean.TRUE.equals(task.getResult())) {
+                    requestGooglePayPayment(providerMode);
+                } else {
+                    error("GOOGLE_PAY_NOT_AVAILABLE", "Google Pay is not available on this device", null);
+                }
+            });
+        } catch (JSONException e) {
+            error("GOOGLE_PAY_ERROR", "Failed to build Google Pay request: " + e.getMessage(), null);
+        } catch (com.oppwa.mobile.connect.exception.PaymentException e) {
+            error("GOOGLE_PAY_ERROR", e.getLocalizedMessage(), null);
+        }
+    }
+
+    private JSONObject buildGooglePayRequest() throws JSONException {
+        JSONArray allowedAuthMethods = new JSONArray();
+        if (allowedCardAuthMethods != null) {
+            for (String method : allowedCardAuthMethods) {
+                allowedAuthMethods.put(method);
+            }
+        }
+
+        JSONArray allowedNetworks = new JSONArray();
+        if (allowedCardNetworks != null) {
+            for (String network : allowedCardNetworks) {
+                allowedNetworks.put(network);
+            }
+        }
+
+        JSONObject tokenizationSpec = new JSONObject()
+            .put("type", "PAYMENT_GATEWAY")
+            .put("parameters", new JSONObject()
+                .put("gateway", "aciworldwide")
+                .put("gatewayMerchantId", gatewayMerchantId));
+
+        JSONObject cardPaymentMethod = new JSONObject()
+            .put("type", "CARD")
+            .put("parameters", new JSONObject()
+                .put("allowedAuthMethods", allowedAuthMethods)
+                .put("allowedCardNetworks", allowedNetworks))
+            .put("tokenizationSpecification", tokenizationSpec);
+
+        JSONObject transactionInfo = new JSONObject()
+            .put("totalPrice", amount)
+            .put("totalPriceStatus", "FINAL")
+            .put("countryCode", countryCode)
+            .put("currencyCode", currencyCode);
+
+        JSONObject merchantInfo = new JSONObject()
+            .put("merchantId", googlePayMerchantId)
+            .put("merchantName", "");
+
+        return new JSONObject()
+            .put("apiVersion", 2)
+            .put("apiVersionMinor", 0)
+            .put("allowedPaymentMethods", new JSONArray().put(cardPaymentMethod))
+            .put("transactionInfo", transactionInfo)
+            .put("merchantInfo", merchantInfo);
+    }
+
+    private void requestGooglePayPayment(Connect.ProviderMode providerMode) {
+        try {
+            JSONObject paymentRequest = buildGooglePayRequest();
+            PaymentsClient paymentsClient = GooglePayHelper.getPaymentsClient(activity, providerMode);
+            PaymentDataRequest request = PaymentDataRequest.fromJson(paymentRequest.toString());
+            AutoResolveHelper.resolveTask(
+                paymentsClient.loadPaymentData(request),
+                activity,
+                991
+            );
+        } catch (JSONException e) {
+            error("GOOGLE_PAY_ERROR", "Failed to build Google Pay request: " + e.getMessage(), null);
+        }
+    }
+
+    private void submitGooglePayTransaction(String token, String cardBrand) {
+        try {
+            Connect.ProviderMode providerMode = (mode != null && mode.equals("live")) ?
+                Connect.ProviderMode.LIVE : Connect.ProviderMode.TEST;
+
+            GooglePayPaymentParams paymentParams = new GooglePayPaymentParams(googlePayCheckoutId, token, cardBrand);
+            paymentParams.setShopperResultUrl(ShopperResultUrl + "://result");
+
+            Transaction transaction = new Transaction(paymentParams);
+
+            paymentProvider = new OppPaymentProvider(context, providerMode);
+            paymentProvider.setThreeDSWorkflowListener(new ThreeDSWorkflowListener() {
+                @Override
+                public Activity onThreeDSChallengeRequired() {
+                    return activity;
+                }
+            });
+
+            paymentProvider.submitTransaction(transaction, this);
+        } catch (PaymentException e) {
+            error("GOOGLE_PAY_ERROR", e.getLocalizedMessage(), null);
+        }
+    }
+
+    /**
+     * Submits a Samsung Pay payment using a payment credential previously obtained from
+     * the Samsung Pay SDK. The credential is passed via the {@code serviceId} field in
+     * {@link SamsungPayUI} when calling {@code samsungPayUI()}.
+     *
+     * <p>To get the credential, integrate the Samsung Pay SDK in your app, present the
+     * Samsung Pay sheet, and pass the resulting payment token as {@code serviceId}.
+     */
+    private void openSamsungPayUI() {
+        try {
+            Connect.ProviderMode providerMode = (mode != null && mode.equals("live")) ?
+                Connect.ProviderMode.LIVE : Connect.ProviderMode.TEST;
+
+            // SamsungPayPaymentParams(checkoutId, paymentCredential)
+            // paymentCredential = the Samsung Pay token obtained from the Samsung Pay SDK.
+            // Pass it as the `serviceId` field of SamsungPayUI.
+            if (serviceId == null || serviceId.isEmpty()) {
+                error("SAMSUNG_PAY_NOT_AVAILABLE",
+                    "Samsung Pay requires a payment credential from the Samsung Pay SDK. " +
+                    "Integrate the Samsung Pay SDK, get the payment token, and pass it as serviceId.",
+                    null);
+                return;
+            }
+
+            SamsungPayPaymentParams paymentParams = new SamsungPayPaymentParams(samsungPayCheckoutId, serviceId);
+            paymentParams.setShopperResultUrl(ShopperResultUrl + "://result");
+
+            Transaction transaction = new Transaction(paymentParams);
+
+            paymentProvider = new OppPaymentProvider(context, providerMode);
+            paymentProvider.setThreeDSWorkflowListener(new ThreeDSWorkflowListener() {
+                @Override
+                public Activity onThreeDSChallengeRequired() {
+                    return activity;
+                }
+            });
+
+            paymentProvider.submitTransaction(transaction, this);
+        } catch (PaymentException e) {
+            error("SAMSUNG_PAY_ERROR", e.getLocalizedMessage(), null);
+        }
+    }
+
     // Legacy activity result handling
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         sendDebugLogToFlutter("🔄 Activity Result", "RequestCode: " + requestCode + ", ResultCode: " + resultCode);
+
+        if (requestCode == 991) { // Google Pay request code
+            switch (resultCode) {
+                case Activity.RESULT_OK:
+                    if (data != null) {
+                        try {
+                            PaymentData paymentData = PaymentData.getFromIntent(data);
+                            if (paymentData != null) {
+                                JSONObject paymentJson = new JSONObject(paymentData.toJson());
+                                JSONObject paymentMethodData = paymentJson.getJSONObject("paymentMethodData");
+                                String token = paymentMethodData
+                                    .getJSONObject("tokenizationData")
+                                    .getString("token");
+                                String cardBrand = paymentMethodData
+                                    .getJSONObject("info")
+                                    .getString("cardNetwork");
+                                submitGooglePayTransaction(token, cardBrand);
+                            } else {
+                                error("GOOGLE_PAY_ERROR", "No payment data returned", null);
+                            }
+                        } catch (JSONException e) {
+                            error("GOOGLE_PAY_ERROR", "Failed to parse Google Pay response: " + e.getMessage(), null);
+                        }
+                    } else {
+                        error("GOOGLE_PAY_ERROR", "No intent data returned", null);
+                    }
+                    break;
+                case Activity.RESULT_CANCELED:
+                    error("GOOGLE_PAY_CANCELED", "Google Pay was cancelled by the user", null);
+                    break;
+                default:
+                    error("GOOGLE_PAY_ERROR", "Google Pay returned an unexpected result: " + resultCode, null);
+                    break;
+            }
+            return true;
+        }
 
         if (requestCode == 242) { // Our checkout request code
             switch (resultCode) {
@@ -568,12 +804,13 @@ public class PaymentPlugin implements
 
     @Override
     public void brandsValidationRequestSucceeded(@NonNull BrandsValidation brandsValidation) {
-        ITransactionListener.super.brandsValidationRequestSucceeded(brandsValidation);
+        java.util.List<String> brands = new java.util.ArrayList<>(brandsValidation.getBrandInfoMap().keySet());
+        success(brands);
     }
 
     @Override
-    public void brandsValidationRequestFailed(@NonNull PaymentError error) {
-        ITransactionListener.super.brandsValidationRequestFailed(error);
+    public void brandsValidationRequestFailed(@NonNull PaymentError paymentError) {
+        error("BIN_LOOKUP_ERROR", "Brand detection failed", null);
     }
 
     @Override

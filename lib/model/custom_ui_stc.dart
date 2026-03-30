@@ -3,15 +3,18 @@ import '../flutter_hyperpay.dart';
 /// Class CustomUISTC is used to store the payment type,
 /// checkout ID, and phone number for custom UI payment.
 class CustomUISTC {
-  /// initializes a variable named paymentType with the value PaymentConst.customUi.
-  String paymentType = PaymentConst.customUi;
+  /// The payment type, defaults to PaymentConst.customUiSTC.
+  final String paymentType = PaymentConst.customUiSTC;
 
-  /// declares a string variable named checkoutId without assigning it an initial value.
-  String checkoutId;
+  /// The HyperPay checkout ID.
+  final String checkoutId;
 
-  /// The phone number for STC (Saudi Telecom Company) can vary depending on the specific region or service you are looking for
-  String phoneNumber;
+  /// The shopper's phone number for STC Pay verification.
+  final String phoneNumber;
 
+  /// Creates a [CustomUISTC] payment request.
+  ///
+  /// [phoneNumber] must be the shopper's registered STC Pay mobile number.
   CustomUISTC({
     required this.checkoutId,
     required this.phoneNumber,
