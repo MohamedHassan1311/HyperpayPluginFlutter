@@ -6,6 +6,20 @@ A Flutter plugin that makes integrating the **HyperPay payment gateway** into yo
 [![GitHub](https://img.shields.io/badge/Github-MohamedHassan1311-blue?logo=github)](https://github.com/MohamedHassan1311)
 [![License](https://img.shields.io/badge/license-MIT-purple.svg)]()
 
+> **Built on HyperPay Mobile SDK 7.11.0** (Android & iOS). This release is the
+> mandatory update for the Mastercard 3D Secure certificate renewal — merchants
+> must ship it **before 2026-07-07** to keep Mastercard 3DS authentication and
+> transactions working. The native SDK binaries are bundled inside the plugin
+> (Android `.aar` files and iOS `.xcframework`s), so you don't need to add any
+> external HyperPay pod or AAR yourself.
+
+### Requirements
+
+| | Minimum |
+|---|---|
+| Android | JDK 17 · `compileSdk 35` · `minSdkVersion 24` |
+| iOS | Xcode 26 · iOS 13.0 deployment target |
+
 ---
 
 ## Supported Payment Methods
@@ -29,7 +43,7 @@ Add this to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  hyperpay_payment_sdk: ^1.1.0
+  hyperpay_payment_sdk: ^1.2.0
 ```
 
 Then run:
@@ -42,74 +56,86 @@ flutter pub get
 
 ## Android Setup
 
-### 1. Add SDK dependencies
+The HyperPay SDK binaries (`oppwa.mobile`, `ipworks3ds_sdk`) are bundled inside
+the plugin, so you **don't** need to add the SDK AARs or HyperPay dependencies
+yourself. You only need to meet the build requirements and register the redirect
+URL scheme.
 
-Open `android/app/build.gradle` and add:
+### 1. Build configuration
 
-```gradle
-implementation(name: "oppwa.mobile-release", ext: 'aar')
-debugImplementation(name: "ipworks3ds_sdk", ext: 'aar')
-releaseImplementation(name: "ipworks3ds_sdk_deploy", ext: 'aar')
-implementation "com.google.android.material:material:1.6.1"
-implementation "androidx.appcompat:appcompat:1.5.1"
-implementation 'com.google.android.gms:play-services-wallet:19.1.0'
-implementation "androidx.browser:browser:1.4.0"
-```
-
-> `play-services-wallet:19.1.0` is required for Google Pay.
-
-### 2. Set minimum SDK version
-
-In `app/build.gradle`, ensure:
+In `android/app/build.gradle`, make sure your app targets JDK 17 and the required
+SDK levels (the plugin requires `minSdkVersion 24`):
 
 ```gradle
-minSdkVersion 21
+android {
+    compileSdk 35
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions { jvmTarget = "17" }
+
+    defaultConfig {
+        minSdkVersion 24
+    }
+}
 ```
 
-### 3. Add Intent Filter
+> Build with **JDK 17** and **Android Gradle Plugin 8.x** (Gradle 8.x).
 
-Open `AndroidManifest.xml` and add the `intent-filter` inside your `<activity>` tag:
+### 2. Add Intent Filter
+
+Add the `intent-filter` inside your launcher `<activity>` in `AndroidManifest.xml`
+and set the activity `launchMode` to `singleTop` (or `singleTask`) so the app is
+brought back to the foreground after a redirect:
 
 ```xml
-<activity>
+<activity
+    android:name=".MainActivity"
+    android:launchMode="singleTop"
+    ... >
+
     <intent-filter>
         <action android:name="android.intent.action.VIEW" />
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.BROWSABLE" />
         <category android:name="android.intent.category.DEFAULT" />
-        <category android:name="android.intent.category.LAUNCHER" />
-        <data android:scheme="com.testpayment.payment" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="com.testpayment.payment" android:host="result" />
     </intent-filter>
 </activity>
 ```
 
 > **Important:** The `scheme` value must exactly match `InAppPaymentSetting.shopperResultUrl`.
+>
+> For **ReadyUI** on SDK 7.x the checkout activity handles the 3DS challenge and
+> the shopper-result redirect internally — the intent-filter is only needed for
+> the **CustomUI / STC Pay** flows, but keeping it is harmless.
 
 ---
 
 ## iOS Setup
 
-### 1. Update your Podfile
-
-Open `ios/Podfile` and add:
+The HyperPay SDK frameworks (`OPPWAMobile.xcframework` and
+`ipworks3ds_sdk.xcframework`) are vendored inside the plugin, so **no extra pod
+is required** — just run `pod install`. If you are upgrading from an older
+version, remove any previous HyperPay pod wiring from your `ios/Podfile`:
 
 ```ruby
-pod 'hyperpay_sdk', :git => 'https://github.com/MohamedHassan1311/hyperpaysdkIOS.git'
-
-$static_framework = ['hyperpay_payment_sdk']
-pre_install do |installer|
-  Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
-  installer.pod_targets.each do |pod|
-    if $static_framework.include?(pod.name)
-      def pod.build_type
-        Pod::BuildType.static_library
-      end
-    end
-  end
-end
+# ❌ Remove these — no longer needed in SDK 7.11.0:
+# pod 'hyperpay_sdk', :git => 'https://github.com/MohamedHassan1311/hyperpaysdkIOS.git'
+# $static_framework = ['hyperpay_payment_sdk']
+# pre_install do |installer| ... end
 ```
 
-### 2. Add a URL Scheme in Xcode
+Requirements: **Xcode 26**, an **iOS 13.0+** deployment target, and
+`use_frameworks!` in your `Podfile` (the Flutter default).
+
+```bash
+cd ios
+pod install
+```
+
+### Add a URL Scheme in Xcode
 
 1. Open your project in **Xcode**.
 2. Select your app **Target** → go to the **Info** tab.
@@ -241,7 +267,8 @@ PaymentResultData result = await flutterHyperPay.payWithSoredCards(
 
 ### Prerequisites
 
-Make sure `play-services-wallet:19.1.0` is in your `android/app/build.gradle` (see Android Setup above).
+Google Pay support (`play-services-wallet`) is bundled with the plugin — no extra
+dependency is required. Just make sure Google Pay is set up on the test device.
 
 ### Usage
 
