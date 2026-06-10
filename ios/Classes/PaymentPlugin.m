@@ -1,6 +1,6 @@
 #import "PaymentPlugin.h"
-#if __has_include(<payment/payment-Swift.h>)
-#import <payment/payment-Swift.h>
+#if __has_include(<hyperpay_payment_sdk/hyperpay_payment_sdk-Swift.h>)
+#import <hyperpay_payment_sdk/hyperpay_payment_sdk-Swift.h>
 
 #else
 // Support project import fallback if the generated compatibility header

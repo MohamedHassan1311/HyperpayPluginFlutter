@@ -34,22 +34,10 @@ target 'Runner' do
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
-pod 'hyperpay_sdk',
-    :git => 'https://github.com/MohamedHassan1311/hyperpaysdkIOS.git',
-    :branch => 'staging'
-
-$static_framework = ['hyperpay_payment_sdk']
-
-pre_install do |installer|
-  Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
-  installer.pod_targets.each do |pod|
-      if $static_framework.include?(pod.name)
-        def pod.build_type;
-          Pod::BuildType.static_library
-        end
-      end
-    end
-end
+# HyperPay Mobile SDK 7.11.0 frameworks are now vendored inside the plugin
+# (OPPWAMobile.xcframework + ipworks3ds_sdk.xcframework, both dynamic), so the
+# external `hyperpay_sdk` pod and the static-framework workaround are no longer
+# needed.
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|

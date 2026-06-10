@@ -4,14 +4,11 @@ PODS:
   - Flutter (1.0.0)
   - hyperpay_payment_sdk (1.0.0):
     - Flutter
-    - hyperpay_sdk (~> 6.16.0)
-  - hyperpay_sdk (6.16.0)
 
 DEPENDENCIES:
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
   - hyperpay_payment_sdk (from `.symlinks/plugins/hyperpay_payment_sdk/ios`)
-  - hyperpay_sdk (from `https://github.com/MohamedHassan1311/hyperpaysdkIOS.git`, branch `staging`)
 
 EXTERNAL SOURCES:
   device_info_plus:
@@ -20,21 +17,12 @@ EXTERNAL SOURCES:
     :path: Flutter
   hyperpay_payment_sdk:
     :path: ".symlinks/plugins/hyperpay_payment_sdk/ios"
-  hyperpay_sdk:
-    :branch: staging
-    :git: https://github.com/MohamedHassan1311/hyperpaysdkIOS.git
-
-CHECKOUT OPTIONS:
-  hyperpay_sdk:
-    :commit: 8c7ac38b76e5f0f8fd4a21107fb0663f6a5d56b6
-    :git: https://github.com/MohamedHassan1311/hyperpaysdkIOS.git
 
 SPEC CHECKSUMS:
   device_info_plus: bf2e3232933866d73fe290f2942f2156cdd10342
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  hyperpay_payment_sdk: 5110bc53fc3dfcd912266a8216cd98b9ede8747e
-  hyperpay_sdk: 00687afeeac4879c005ddde5db729b61f6a87e96
+  hyperpay_payment_sdk: de3346da47303009cf8a5e144f8bed6d86dbab0c
 
-PODFILE CHECKSUM: dcb12e16ed9791d75a5f03464ba66e54b89a6b43
+PODFILE CHECKSUM: 2f77a2c7d2b7869ea4da70b3bf38e6028a6be58b
 
 COCOAPODS: 1.16.2
