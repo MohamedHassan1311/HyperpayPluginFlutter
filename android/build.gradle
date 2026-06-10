@@ -29,30 +29,35 @@ android {
     compileSdkVersion 35
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     defaultConfig {
-        minSdkVersion 21
+        // SDK 7.11.0 requires minSdkVersion 24 (matches the oppwa.mobile AAR manifest)
+        minSdkVersion 24
     }
 }
 
 dependencies {
+    // HyperPay Mobile SDK 7.11.0 (Mastercard 3DS certificate update, mandatory before 2026-07-07)
     implementation(name: "oppwa.mobile-release", ext: 'aar')
-    debugImplementation(name: "ipworks3ds_sdk", ext: 'aar')
-    releaseImplementation(name: "ipworks3ds_sdk_deploy", ext: 'aar')
-    implementation "com.google.android.material:material:1.7.0"
-    implementation 'com.google.android.gms:play-services-wallet:19.1.0'
-    implementation "androidx.browser:browser:1.4.0"
+    debugImplementation(name: "ipworks3ds_sdk", ext: 'aar')          // ipworks3ds_sdk_9625 (Testing/UAT)
+    releaseImplementation(name: "ipworks3ds_sdk_deploy", ext: 'aar') // ipworks3ds_sdk_9625_deploy (Production)
+
+    // Required dependency versions for SDK 7.11.0 (see dependencies.txt)
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'androidx.browser:browser:1.8.0'
-    implementation 'androidx.fragment:fragment-ktx:1.8.5'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
-    implementation 'androidx.webkit:webkit:1.12.1'
+    implementation 'androidx.fragment:fragment-ktx:1.8.6'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.webkit:webkit:1.13.0'
     implementation 'com.google.android.material:material:1.12.0'
-    implementation 'com.google.code.gson:gson:2.10.1'
-    implementation 'androidx.databinding:viewbinding:8.8.0'
+    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7'
 
+    // Google Pay support
+    implementation 'com.google.android.gms:play-services-wallet:19.4.0'
+
+    implementation 'androidx.databinding:viewbinding:8.8.0'
 }
