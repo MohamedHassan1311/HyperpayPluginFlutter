@@ -266,15 +266,19 @@ public class PaymentPlugin implements
         Transaction transaction = result.getTransaction();
         String resourcePath = result.getResourcePath();
 
-        if (transaction != null) {
-            if (transaction.getTransactionType() == TransactionType.SYNC) {
-                sendDebugLogToFlutter("✅ SYNC Transaction", "Payment completed synchronously");
-                success("SYNC");
-            } else {
-                // For ASYNC transactions, the redirect will be handled in onNewIntent
-                sendDebugLogToFlutter("⏳ ASYNC Transaction", "Waiting for redirect callback");
-            }
+        // In SDK 7.x ReadyUI, CheckoutActivity handles the 3DS challenge and the
+        // shopper-result redirect internally, then returns here via the result
+        // contract — onNewIntent is NOT called for ReadyUI. A non-cancelled,
+        // non-errored result means the payment was submitted, so we must complete
+        // the Flutter call for BOTH SYNC and ASYNC transactions. The merchant then
+        // verifies the final outcome by querying the payment status endpoint.
+        if (transaction != null && transaction.getTransactionType() == TransactionType.SYNC) {
+            sendDebugLogToFlutter("✅ SYNC Transaction", "Payment completed synchronously");
+        } else {
+            // ASYNC (e.g. 3DS card payments) — submitted; verify on the server.
+            sendDebugLogToFlutter("⏳ ASYNC Transaction", "Submitted; verify via payment status");
         }
+        success("SYNC");
     }
 
     private void storedCardPayment(String checkoutId) {
@@ -598,11 +602,9 @@ public class PaymentPlugin implements
             switch (resultCode) {
                 case CheckoutActivity.RESULT_OK:
                     sendDebugLogToFlutter("✅ Checkout OK", "Transaction completed");
-                    Transaction transaction = data.getParcelableExtra(CheckoutActivity.CHECKOUT_RESULT_TRANSACTION);
-
-                    if (transaction != null && transaction.getTransactionType() == TransactionType.SYNC) {
-                        success("SYNC");
-                    }
+                    // Complete the Flutter call for both SYNC and ASYNC (e.g. 3DS)
+                    // transactions; the merchant verifies the outcome via payment status.
+                    success("SYNC");
                     break;
 
                 case CheckoutActivity.RESULT_CANCELED:
