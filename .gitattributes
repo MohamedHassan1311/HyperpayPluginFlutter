@@ -1,0 +1,5 @@
+# The vendored HyperPay SDK xcframeworks are code-signed by the vendor. Git must
+# not normalize line endings inside them (core.autocrlf=input rewrote the CRLF
+# in ipworks3ds_sdk's headers, which broke the signature seal and made Swift
+# Package Manager refuse the binary target).
+ios/hyperpay_payment_sdk/Frameworks/** binary

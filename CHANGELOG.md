@@ -1,3 +1,19 @@
+## 1.3.0
+* **iOS: Swift Package Manager support.** The plugin now ships an `ios/hyperpay_payment_sdk/Package.swift`
+  alongside the podspec, so apps on Flutter 3.44+ resolve it as a Swift package with no `pod install`.
+  Both HyperPay xcframeworks are vendored as SwiftPM binary targets and are embedded and signed by Xcode.
+* **iOS:** the Objective-C `PaymentPlugin` shim was replaced by an equivalent Swift class exported to
+  Objective-C as `PaymentPlugin` (Swift Package Manager cannot build targets that mix the two languages).
+  `pluginClass` is unchanged, so nothing changes for apps.
+* **iOS:** sources and frameworks moved into the Swift package layout
+  (`ios/hyperpay_payment_sdk/Sources/...` and `ios/hyperpay_payment_sdk/Frameworks/...`); the podspec
+  builds the exact same files, so CocoaPods apps are unaffected.
+* **iOS:** restored the vendor code signature of `ipworks3ds_sdk.xcframework`, which Git had broken by
+  normalizing line endings in its headers (Swift Package Manager verifies it; CocoaPods did not).
+* **Example app:** migrated to Flutter's Swift Package Manager integration — `ios/Podfile`,
+  `Podfile.lock` and the CocoaPods project/workspace/xcconfig wiring were removed.
+* **iOS:** the podspec version now tracks the pubspec version (was pinned at `1.0.0`).
+
 ## 1.2.0
 * **Upgraded to HyperPay Mobile SDK 7.11.0** (Android & iOS) — mandatory update for the
   Mastercard 3D Secure certificate renewal (deadline 2026-07-07).
