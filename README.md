@@ -18,7 +18,7 @@ A Flutter plugin that makes integrating the **HyperPay payment gateway** into yo
 | | Minimum |
 |---|---|
 | Android | JDK 17 · `compileSdk 35` · `minSdkVersion 24` |
-| iOS | Xcode 26 · iOS 13.0 deployment target |
+| iOS | Xcode 26 · iOS 13.0 deployment target · CocoaPods or Swift Package Manager (Flutter 3.44+) |
 
 ---
 
@@ -43,7 +43,7 @@ Add this to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  hyperpay_payment_sdk: ^1.2.0
+  hyperpay_payment_sdk: ^1.3.0
 ```
 
 Then run:
@@ -117,8 +117,20 @@ brought back to the foreground after a redirect:
 
 The HyperPay SDK frameworks (`OPPWAMobile.xcframework` and
 `ipworks3ds_sdk.xcframework`) are vendored inside the plugin, so **no extra pod
-is required** — just run `pod install`. If you are upgrading from an older
-version, remove any previous HyperPay pod wiring from your `ios/Podfile`:
+is required**.
+
+The plugin ships both dependency managers, and the Flutter tool picks one for
+you — nothing to configure either way:
+
+| | Supported | Notes |
+|---|---|---|
+| **Swift Package Manager** | Flutter 3.44+ | Used automatically; both frameworks are embedded and signed by Xcode |
+| **CocoaPods** | any Flutter version | `pod install`, `use_frameworks!` (the Flutter default) |
+
+Requirements: **Xcode 26** and an **iOS 13.0+** deployment target.
+
+If you are upgrading from an older version, remove any previous HyperPay pod
+wiring from your `ios/Podfile`:
 
 ```ruby
 # ❌ Remove these — no longer needed in SDK 7.11.0:
@@ -127,13 +139,16 @@ version, remove any previous HyperPay pod wiring from your `ios/Podfile`:
 # pre_install do |installer| ... end
 ```
 
-Requirements: **Xcode 26**, an **iOS 13.0+** deployment target, and
-`use_frameworks!` in your `Podfile` (the Flutter default).
+With CocoaPods:
 
 ```bash
 cd ios
 pod install
 ```
+
+With Swift Package Manager there is no install step. If your app has already
+dropped CocoaPods, you can delete `ios/Podfile` entirely — the plugin resolves
+as the Swift package `hyperpay_payment_sdk` under `Flutter/ephemeral/Packages`.
 
 ### Add a URL Scheme in Xcode
 
@@ -401,6 +416,25 @@ Open `android/app/src/main/res/values/colors.xml` and override:
 <color name="cameraTintColor">#000000</color>
 <color name="checkboxButtonTintColor">#000000</color>
 ```
+
+---
+
+## Running the Example App
+
+Clone the repository into a directory named `hyperpay_payment_sdk`:
+
+```bash
+git clone https://github.com/MohamedHassan1311/HyperpayPluginFlutter.git hyperpay_payment_sdk
+cd hyperpay_payment_sdk/example
+flutter run
+```
+
+The directory name matters only here: with Swift Package Manager, Flutter
+registers the plugin's Swift package under the checkout directory name, while an
+example app's Xcode project also references it under the package name. If the two
+differ, Xcode fails with `unable to override package 'hyperpay_payment_sdk'
+because its identity '…' doesn't match override's identity`. Apps that depend on
+the published package are not affected.
 
 ---
 
